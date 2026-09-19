@@ -111,9 +111,12 @@ function image(meta={}){
   return [meta.characterData?.icons?.gacha?.url,meta.characterData?.gachaSplashImage?.url,meta.characterData?.splashImage?.url,meta.icons?.gacha?.url,meta.icons?.card?.url,meta.icon?.url,typeof meta.characterData?.icons?.gacha==='string'?meta.characterData.icons.gacha:null,typeof meta.icons?.gacha==='string'?meta.icons.gacha:null].filter(Boolean)[0]||null;
 }
 function talents(raw,meta={}){
-  const levels=raw?.skillLevelMap||{}, mt=Array.isArray(meta.talents)?meta.talents:[];
-  if(mt.length)return mt.map((t,i)=>({name:str(t.name||t.skillName||'Talent'),level:Number(t.level??Object.values(levels)[i]??1)}));
-  return Object.values(levels).map((v,i)=>({name:`Talent ${i+1}`,level:Number(v)||1}));
+  const levels=raw?.skillLevelMap||{};
+  const values=Object.values(levels).slice(0,3);
+  // skillLevelMap contains the actual three combat talent levels.
+  // Wrapper metadata may include passive/inherent talents, so its array
+  // order must not be used for Normal Attack / Skill / Burst labels.
+  return values.map((v,i)=>({name:['Normal Attack','Elemental Skill','Elemental Burst'][i],level:Number(v)||1}));
 }
 function metaEquip(meta={}){
   const w=meta.weapon||(Array.isArray(meta.equipments)?meta.equipments.find(x=>x?.weapon)?.weapon:null);
