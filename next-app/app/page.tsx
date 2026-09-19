@@ -117,7 +117,7 @@ function CharacterCard({ c, index, onOpen }: { c: Character; index: number; onOp
       <div className="equipment-item"><div className="item-icon">{c.weapon?.icon ? <img src={c.weapon.icon} alt=""/> : '✦'}</div><div><p>WEAPON</p><b>{c.weapon ? `${c.weapon.name} • ${c.weapon.rarity}★` : 'No weapon data'}</b><small>{c.weapon ? `Level ${c.weapon.level} · R${c.weapon.refinement}` : '—'}</small></div></div>
       <div className="equipment-item"><div className="artifact-icons-row">{c.artifacts.slice(0,5).map((a,j)=>a.icon?<img key={j} src={a.icon} alt=""/>:null)}</div><div><p>ARTIFACTS</p><b>{setSummary}</b><small>{c.artifacts.length ? `Avg +${Math.round(c.artifacts.reduce((s,a)=>s+a.level,0)/c.artifacts.length)}` : '—'}</small></div></div>
     </div>
-    <div className="card-bottom"><span>TALENTS {c.talents.map(t=>t.level).join(' / ') || '—'}</span><span>C{c.constellation || 0}</span></div>
+    <div className="card-bottom"><span>{c.talents.length ? c.talents.slice(0,3).map((t,i)=><span key={i}>{['Normal Attack','Elemental Skill','Elemental Burst'][i]} {t.level}{i<Math.min(c.talents.length,3)-1 ? ' · ' : ''}</span>) : 'No talent data'}</span><span>C{c.constellation || 0}</span></div>
     <div className="card-view-detail">OPEN BUILD →</div>
   </article>;
 }
@@ -146,7 +146,7 @@ function DetailModal({ character: c, onClose }: { character: Character; onClose:
         <Breakdown label="EQUIPMENT BONUS DEF" value={`+${numberText(bd.bonus?.DEF)}`} note="Final minus base DEF"/>
         <div className="breakdown-box wide"><span>ARTIFACT CONTRIBUTIONS</span><div className="artifact-contribution-grid">{artifactRows.length ? artifactRows.map(({key,value})=><div className="detail-stat" key={key}><span>{key.replace(/^FIGHT_PROP_/,'').replace(/_/g,' ')}</span><b>{renderBreakdownStat(key,value)}</b></div>) : <span className="detail-empty">No artifact contribution data available.</span>}</div></div>
       </div></section>
-      <section className="detail-section"><p className="detail-heading">TALENTS</p><div className="detail-grid">{c.talents.map(t=><div className="detail-stat" key={t.name}><span>{t.name}</span><b>Lv. {t.level}</b></div>)}</div></section>
+      <section className="detail-section"><p className="detail-heading">TALENTS</p><div className="detail-grid">{c.talents.slice(0,3).map((t,i)=><div className="detail-stat" key={i}><span>{['Normal Attack','Elemental Skill','Elemental Burst'][i]}</span><b>Lv. {t.level}</b></div>)}</div></section>
       <section className="detail-section"><p className="detail-heading">ARTIFACT BREAKDOWN</p><div className="detail-artifacts">{c.artifacts.map(a=><div className="artifact-detail-card" key={`${a.name}-${a.slot}`}>
         <div className="artifact-head">{a.icon&&<img className="artifact-img" src={a.icon} alt=""/>}<div><b>{a.name}</b><span>{a.setName} · {a.slot} · +{a.level}</span></div></div>
         <div className="artifact-main"><span>{a.mainStat.label}</span><b>{a.mainStat.value}</b></div>
