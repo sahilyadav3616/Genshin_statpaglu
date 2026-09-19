@@ -22,3 +22,6 @@
 .detail-artifacts .artifact-subs span{color:#9995aa}
 .detail-artifacts .artifact-subs b{color:#eeeaf7}
 .detail-artifacts .artifact-head span{color:#9995aa}
+
+
+.artifact-cv{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:6px 8px;border-radius:4px;background:linear-gradient(90deg,rgba(167,139,250,.10),rgba(168,255,224,.06));border:1px solid rgba(255,255,255,.06)}.artifact-cv span{font:8px 'DM Mono';letter-spacing:.8px;color:#9f9aae}.artifact-cv b{font:10px 'DM Mono';color:var(--mint);text-shadow:0 0 10px rgba(168,255,224,.18)}
