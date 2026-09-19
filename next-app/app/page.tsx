@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 
 type Stat = { label: string; value: string; rawValue?: number; percent?: boolean; key?: string };
 type Artifact = {
@@ -90,6 +90,7 @@ export default function Home() {
               <button type="submit">LOAD UID <span>→</span></button>
             </form>
             <p className="hint">Public showcase data is retrieved from Enka.Network.</p>
+            <OstPlayer/>
           </div>
           <div className="hero-badge"><span>STATPAGLU</span><strong>BUILD<br/>CHECK</strong><small>01 / LIVE</small></div>
         </div>
@@ -131,6 +132,15 @@ function CharacterCard({ c, index, onOpen }: { c: Character; index: number; onOp
     <div className="card-view-detail">OPEN BUILD →</div>
   </article>;
 }
+function OstPlayer() {
+  const [ready,setReady]=useState(false),[playing,setPlaying]=useState(false),[title,setTitle]=useState('GENSHIN OST');
+  const playerRef=useRef<any>(null);
+  const playlists=['OLAK5uy_mh7Qj9RzVthPsrRo2w8ouE-xmQHXLGzqs','OLAK5uy_nH3djc02OBm-qDh2ITZcoWxNOkbT2mfmw','OLAK5uy_lf8ZuhoICESI_ZXxd8eWu5tkIegnQG6Jo'];
+  useEffect(()=>{let cancelled=false;const init=()=>{if(cancelled||playerRef.current||!(window as any).YT)return;playerRef.current=new (window as any).YT.Player('ostYoutube',{width:'1',height:'1',playerVars:{autoplay:0,controls:0,rel:0,playsinline:1},events:{onReady:()=>{if(cancelled)return;setReady(true);const list=playlists[Math.floor(Math.random()*playlists.length)];playerRef.current.loadPlaylist({listType:'playlist',list});playerRef.current.setShuffle(true)},onStateChange:(e:any)=>{const YT=(window as any).YT;if(e.data===YT.PlayerState.PLAYING){setPlaying(true);try{setTitle(e.target.getVideoData().title||'GENSHIN OST')}catch{}}else if(e.data===YT.PlayerState.PAUSED)setPlaying(false);else if(e.data===YT.PlayerState.ENDED)e.target.nextVideo()}}})};if((window as any).YT?.Player)init();else{const existing=document.querySelector('script[src="https://www.youtube.com/iframe_api"]');if(!existing){const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.async=true;document.head.appendChild(s)}const previous=(window as any).onYouTubeIframeAPIReady;(window as any).onYouTubeIframeAPIReady=()=>{previous?.();init()}}return()=>{cancelled=true;try{playerRef.current?.destroy()}catch{}playerRef.current=null}},[]);
+  const toggle=()=>{if(!playerRef.current||!ready)return;const YT=(window as any).YT;if(playerRef.current.getPlayerState()===YT.PlayerState.PLAYING)playerRef.current.pauseVideo();else playerRef.current.playVideo()};
+  return <section className="ost-player" aria-label="Genshin Impact OST player"><div className="ost-copy"><span className="eyebrow">TEYVAT RADIO</span><strong>{title}</strong><small>{playing?'NOW PLAYING · HOYO-MIX':'PRESS PLAY · HOYO-MIX'}</small></div><div className="ost-controls"><button type="button" aria-label="Previous track" onClick={()=>playerRef.current?.previousVideo()}>‹</button><button type="button" aria-label="Play or pause" onClick={toggle}>{playing?'Ⅱ':'▶'}</button><button type="button" aria-label="Next track" onClick={()=>playerRef.current?.nextVideo()}>›</button></div><div className="ost-video" aria-hidden="true"><div id="ostYoutube"/></div></section>;
+}
+
 function DetailModal({ character: c, onClose }: { character: Character; onClose: () => void }) {
   const bd = c.breakdown || {};
   const weapon = bd.weapon || c.weapon;
