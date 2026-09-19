@@ -2,6 +2,8 @@
 
 A Genshin Impact character showcase and stat viewer powered by Enka.Network.
 
+**Live deployment:** https://genshin-statpaglu.onrender.com/
+
 ## Features
 
 - UID-based public profile lookup
