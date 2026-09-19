@@ -73,3 +73,49 @@
 
 /* Keep Enka-style character card art behind content, but above the card background. */
 .build-card > .card-top,.build-card > .portrait,.build-card > .character-title,.build-card > .key-stats,.build-card > .divider,.build-card > .equipment,.build-card > .card-bottom,.build-card > .card-view-detail { position: relative; z-index: 1; }
+
+/* Readability + subtle Genshin-inspired artifact presentation */
+.build-card .character-title h3{
+  background:linear-gradient(90deg,#ffffff 0%,#d9d1ff 55%,var(--accent,#b8ffd7) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.build-card .key-stats .stat{
+  border-top-color:color-mix(in srgb,var(--accent,#9983ff) 32%,rgba(255,255,255,.10));
+}
+.build-card .key-stats .stat span{color:#b8b5cb}
+.build-card .key-stats .stat b{
+  color:#f7f4ff;
+  text-shadow:0 0 18px color-mix(in srgb,var(--accent,#9983ff) 22%,transparent);
+}
+.build-card .equipment b{color:#eeeafa}
+.build-card .card-bottom{color:#bbb8cc}
+.build-card .card-view-detail{background:linear-gradient(90deg,transparent, color-mix(in srgb,var(--accent,#9983ff) 12%,transparent));border-radius:4px;padding:5px 7px;margin-left:auto;width:max-content}
+.detail-artifacts .artifact-detail-card{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,255,255,.065),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.11);
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.detail-artifacts .artifact-detail-card::before{
+  content:"";
+  position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--purple,#9983ff),var(--mint,#b8ffd7));
+  opacity:.72;
+}
+.detail-artifacts .artifact-head b{color:#f0edf9}
+.detail-artifacts .artifact-main{
+  background:rgba(0,0,0,.10);
+  border-top:1px solid rgba(255,255,255,.09);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding:9px 8px;
+}
+.detail-artifacts .artifact-main span{color:#a9a5bb}
+.detail-artifacts .artifact-main b{color:#d9ccff}
+.detail-artifacts .artifact-subs>div{
+  border:1px solid rgba(255,255,255,.055);
+  background:rgba(8,8,16,.24);
+}
+.detail-artifacts .artifact-subs span{color:#9995aa}
+.detail-artifacts .artifact-subs b{color:#eeeaf7}
+.detail-artifacts .artifact-head span{color:#9995aa}
