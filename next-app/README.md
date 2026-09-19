@@ -1,33 +1,75 @@
 # Genshin StatPaglu — Next.js backup
 
-A standalone Next.js reimplementation of the local Genshin public-showcase viewer.
+A standalone Next.js reimplementation of the Genshin public-showcase viewer.
 
-## What changed
+## Requirements
+- Node.js 20.9+
+- npm
 
-- Migrated the old Node HTTP/static frontend into the Next.js App Router.
-- API route: `/api/profile/[uid]`.
-- Rebranded the entire UI to **Genshin StatPaglu**.
-- Reworked the visual identity: new logo treatment, typography hierarchy, card styling, hero composition, colors, and labels.
-- Keeps raw Enka combat-stat parsing and robust artifact/weapon parsing.
-- Keeps the percentage fix: Enka equipment percentages such as `13.2` render as `13.2%`, while fightPropMap decimal percentages still render correctly.
-- Uses Enka.Network only as the data source; this project is not affiliated with HoYoverse.
+## Next.js: Bash
 
-## Run
+From the repository root:
+```bash
+cd next-app
+bash run.sh
+```
 
-Requires Node.js 20.9+.
+Or:
+```bash
+cd next-app
+./run.sh
+```
+
+The script installs dependencies if `node_modules` is missing, then starts Next.js. Open the URL printed by Next.js, normally `http://localhost:3000`.
+
+## Next.js: manual
 
 ```bash
+cd next-app
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
-
-## Production
-
+Production:
 ```bash
+cd next-app
+npm install
 npm run build
 npm start
 ```
 
-This directory is intentionally kept separate from the root Node.js implementation as a backup/alternative deployment target.
+## Windows PowerShell / CMD
+
+Use:
+```powershell
+cd next-app
+npm install
+npm run dev
+```
+
+`run.sh` is for Bash environments such as Git Bash or WSL.
+
+## Original Node.js version
+
+The original Node.js implementation remains in the repository root.
+
+From the repository root:
+```bash
+npm install
+npm start
+```
+
+It runs at `http://localhost:4173`.
+
+If an older checkout has no `start` script:
+```bash
+node server.js
+```
+
+## Side-by-side
+- **Root:** original Node.js/static implementation — port **4173**
+- **next-app/:** Next.js implementation — port **3000**
+
+Both use Enka.Network for public showcase data. Only characters returned by the public showcase endpoint can be displayed.
+
+This project is not affiliated with HoYoverse.
