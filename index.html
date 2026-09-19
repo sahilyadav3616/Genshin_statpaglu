@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genshin StatPaglu — Genshin builds, elevated</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="aurora aurora-one"></div><div class="aurora aurora-two"></div>
+    <main class="shell">
+      <nav class="topbar">
+        <a class="brand" href="#top" aria-label="Genshin StatPaglu home"><i></i>GENSHIN <span>STATPAGLU</span></a>
+        <div class="nav-status" id="dataStatus"><b></b> ENKA LIVE DATA</div>
+        <a class="source-link" id="sourceLink" href="https://enka.network/u/863353806/" target="_blank" rel="noreferrer">VIEW ON ENKA ↗</a>
+      </nav>
+      <section class="hero" id="top">
+        <div class="eyebrow">GENSHIN IMPACT • CHARACTER ARCHIVE</div>
+        <h1>Builds worth<br /><em>showing off.</em></h1>
+        <p>Explore stats, equipment, and refinements in a cleaner character card built from your Enka profile.</p>
+        <form class="uid-form" id="uidForm">
+          <input id="uidInput" inputmode="numeric" aria-label="Genshin UID" value="863353806" maxlength="10" />
+          <button type="submit">LOAD PROFILE <span>→</span></button>
+        </form>
+        <p class="hint">Enter any public UID. Data is retrieved from Enka.network.</p>
+      </section>
+      <section class="profile-panel" aria-live="polite">
+        <div class="profile-identity"><div class="profile-mark">K</div><div><span>TRAVELER PROFILE</span><h2 id="nickname">Loading profile…</h2></div></div>
+        <div class="profile-stats"><div><span>ADVENTURE RANK</span><b id="ar">—</b></div><div><span>WORLD LEVEL</span><b id="wl">—</b></div><div><span>SPIRAL ABYSS</span><b id="abyss">—</b></div></div>
+        <div class="profile-meta"><span id="region">ASIA</span><span>UID <b id="uidText">863353806</b></span></div>
+      </section>
+      <section class="collection">
+        <div class="section-heading"><div><span class="eyebrow">PUBLIC SHOWCASE</span><h2>Character roster <small id="count">— builds</small></h2></div><button id="reload" class="ghost-button">↻ REFRESH</button></div>
+        <input id="filterInput" class="filter-input" type="text" placeholder="Filter showcased characters by name…" aria-label="Filter characters" />
+        <p class="hint" style="margin:8px 0 22px!important">Only characters returned by your public Enka showcase are shown. Those are owned characters visible to Enka; the service cannot expose hidden/non-showcased characters.</p>
+        <div class="roster" id="roster"><div class="loading">CONTACTING ENKA ARCHIVE<span></span></div></div>
+      </section>
+    </main>
+    <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
+    <template id="cardTemplate">
+      <article class="build-card">
+        <div class="card-glow"></div>
+        <img class="char-image" src="" alt="" loading="lazy" />
+        <div class="card-top"><span class="rarity">★★★★★</span><span class="build-index"></span></div>
+        <div class="portrait"><span class="initial"></span><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div></div>
+        <div class="character-title"><div><p class="element">SHOWCASED CHARACTER</p><h3></h3></div><span class="level"></span></div>
+        <div class="key-stats"></div>
+        <div class="divider"></div>
+        <div class="equipment">
+          <div class="weapon"><img class="weapon-img" src="" alt="" loading="lazy" /><span class="weapon-icon">✦</span><div><p>WEAPON</p><b></b><small></small></div></div>
+          <div class="artifact"><div class="artifact-icons-row"></div><div><p>ARTIFACTS</p><b></b><small></small></div></div>
+        </div>
+        <div class="card-bottom"><span class="talents"></span><span class="constellations"></span></div>
+        <div class="card-view-detail">VIEW FULL STATS →</div>
+      </article>
+    </template>
+    <div class="modal hidden" id="detailModal">
+      <div class="modal-content">
+        <button class="detail-close" aria-label="Close">✕</button>
+        <p class="eyebrow">FULL STAT BREAKDOWN</p>
+        <h2 class="detail-title">—</h2><p class="detail-sub">—</p>
+        <div class="detail-section"><p class="detail-heading">WEAPON</p><div class="detail-weapon"></div></div>
+        <div class="detail-section"><p class="detail-heading">STATS</p><div class="detail-grid detail-stats"></div></div>
+        <div class="detail-section"><p class="detail-heading">TALENTS</p><div class="detail-grid detail-talents"></div></div>
+        <div class="detail-section"><p class="detail-heading">ARTIFACT SETS</p><p class="artifact-summary">—</p></div>
+        <div class="detail-section"><p class="detail-heading">ARTIFACT BREAKDOWN</p><div class="detail-artifacts"></div></div>
+      </div>
+    </div>
+    <script src="./profile-cache.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
