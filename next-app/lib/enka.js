@@ -112,11 +112,21 @@ function image(meta={}){
 }
 function talents(raw,meta={}){
   const levels=raw?.skillLevelMap||{};
-  const values=Object.values(levels).slice(0,3);
-  // skillLevelMap contains the actual three combat talent levels.
-  // Wrapper metadata may include passive/inherent talents, so its array
-  // order must not be used for Normal Attack / Skill / Burst labels.
-  return values.map((v,i)=>({name:['Normal Attack','Elemental Skill','Elemental Burst'][i],level:Number(v)||1}));
+  const fallback=Object.values(levels).slice(0,3);
+  const definitions=[
+    ['Normal Attack',meta?.skills?.normalAttacks],
+    ['Elemental Skill',meta?.skills?.elementalSkill],
+    ['Elemental Burst',meta?.skills?.elementalBurst]
+  ];
+  return definitions.map(([name,skill],i)=>{
+    // Enka's wrapper resolves each combat talent through the character's
+    // skillOrder. This matters for characters such as Ayaka where the raw
+    // skillLevelMap key order is not safe to interpret as Normal/Skill/Burst.
+    const id=skill?.id;
+    const rawLevel=id!=null?(levels[String(id)]??levels[id]):undefined;
+    const level=Number(rawLevel??skill?.level??fallback[i]??1);
+    return {name,level:Number.isFinite(level)&&level>0?level:1};
+  });
 }
 function metaEquip(meta={}){
   const w=meta.weapon||(Array.isArray(meta.equipments)?meta.equipments.find(x=>x?.weapon)?.weapon:null);
