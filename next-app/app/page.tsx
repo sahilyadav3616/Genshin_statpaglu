@@ -34,14 +34,14 @@ function renderBreakdownStat(key: string, value: number) {
   return percentageKeys.has(key) ? percentText(value) : numberText(value);
 }
 export default function Home() {
-  const [uid, setUid] = useState('863353806');
+  const [uid, setUid] = useState('');
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [status, setStatus] = useState('LOADING');
+  const [status, setStatus] = useState('ENTER UID');
   const [live, setLive] = useState(true);
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState<number | null>(null);
   async function loadProfile(value: string) {
-    const clean = value.replace(/D/g,'');
+    const clean = value.replace(/\D/g,'');
     if (clean.length < 8) return;
     setUid(clean); setStatus('CONTACTING ENKA'); setLive(true); setProfile(null);
     try {
@@ -54,7 +54,7 @@ export default function Home() {
       setStatus((error as Error).message.toUpperCase()); setLive(false);
     }
   }
-  useEffect(() => { loadProfile(uid); }, []);
+  useEffect(() => {}, []);
   const characters = useMemo(() => {
     const needle = filter.trim().toLowerCase();
     return (profile?.characters || []).map((c,i)=>({c,i})).filter(({c})=>!needle || c.name.toLowerCase().includes(needle));
@@ -67,7 +67,7 @@ export default function Home() {
       <header className="topbar">
         <a className="brand" href="#top" aria-label="Genshin StatPaglu home"><span className="brand-mark">SP</span><span>GENSHIN <b>STATPAGLU</b></span></a>
         <div className="nav-status"><i className={live ? 'online' : 'offline'} /> {status}</div>
-        <a className="source-link" href={`https://enka.network/u/${profile?.uid || uid}/`} target="_blank" rel="noreferrer">ENKA PROFILE ↗</a>
+        <a className="source-link" href={profile?.uid ? `https://enka.network/u/${profile.uid}/` : '#'} target="_blank" rel="noreferrer">ENKA PROFILE ↗</a>
       </header>
       <section className="hero" id="top">
         <div className="eyebrow">GENSHIN IMPACT • BUILD INSPECTOR</div>
@@ -76,7 +76,7 @@ export default function Home() {
             <h1>Your builds.<br/><em>Your stats.</em></h1>
             <p>Genshin StatPaglu turns your public showcase into a clean, readable character dashboard — equipment, artifacts, talents and combat stats in one place.</p>
             <form className="uid-form" onSubmit={submit}>
-              <input value={uid} onChange={e=>setUid(e.target.value.replace(/D/g,''))} inputMode="numeric" maxLength={10} aria-label="Genshin UID" />
+              <input placeholder="Enter UID" value={uid} onChange={e=>setUid(e.target.value.replace(/\D/g,''))} inputMode="numeric" maxLength={10} aria-label="Genshin UID" />
               <button type="submit">LOAD UID <span>→</span></button>
             </form>
             <p className="hint">Public showcase data is retrieved from Enka.Network.</p>
