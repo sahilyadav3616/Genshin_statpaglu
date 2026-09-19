@@ -1,0 +1,16 @@
+{
+  "name": "genshin-statpaglu",
+  "version": "9.2.0",
+  "private": true,
+  "description": "Genshin StatPaglu local Enka showcase viewer using raw Enka combat stats with robust raw/wrapper equipment parsing.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "enkanetwork": "latest"
+  }
+}
