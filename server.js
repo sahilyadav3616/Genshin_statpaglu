@@ -603,7 +603,7 @@ http.createServer(async (req, res) => {
     if (err) return send(res, 500, 'Could not read app file', 'text/plain');
     send(res, 200, data, types[ext]);
   });
-}).listen(4173, () => console.log('Genshin StatPaglu v9.2.0 is running at http://localhost:4173'));
+}).listen(Number(process.env.PORT || 4173), () => console.log(`Genshin StatPaglu v9.2.0 is running on port ${process.env.PORT || 4173}`));
 
 // Export parser helpers for the local smoke-test without starting another server.
 module.exports = { getFinalStats, serializeCharacter, normalizeRawWeapon, normalizeRawArtifact };
