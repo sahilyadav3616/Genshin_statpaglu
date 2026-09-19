@@ -6,6 +6,7 @@ services:
     buildCommand: npm install
     startCommand: npm start
     plan: free
+    autoDeployTrigger: commit
 
   - type: web
     name: genshin-statpaglu-next
