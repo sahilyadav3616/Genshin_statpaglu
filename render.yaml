@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: genshin-statpaglu-node
+    runtime: node
+    rootDir: .
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+
+  - type: web
+    name: genshin-statpaglu-next
+    runtime: node
+    rootDir: next-app
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
