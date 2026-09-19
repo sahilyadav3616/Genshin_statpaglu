@@ -94,4 +94,4 @@ document.querySelector('#reload').addEventListener('click',()=>{const uid=docume
 document.querySelector('#filterInput').addEventListener('input',e=>renderRoster(e.target.value));
 document.querySelector('#detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal'||e.target.closest('.detail-close'))closeDetail()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
-load('863353806');
+// Do not load a profile automatically; the UID field starts empty.
