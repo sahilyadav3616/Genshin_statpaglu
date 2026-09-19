@@ -29,6 +29,16 @@ function topStats(stats: Stat[]) {
   const picked = priorityLabels.map(label => stats.find(s => s.label === label)).filter(Boolean) as Stat[];
   return picked.slice(0,4).length ? picked.slice(0,4) : stats.slice(0,4);
 }
+function artifactCV(a: Artifact) {
+  let cr = 0, cd = 0;
+  (a.substats || []).forEach(sub => {
+    const label = String(sub.label || '').toLowerCase();
+    const value = Number(sub.rawValue ?? String(sub.value || '').replace('%','')) || 0;
+    if (label.includes('crit rate')) cr += value;
+    if (label.includes('crit dmg') || label.includes('crit damage')) cd += value;
+  });
+  return cr * 2 + cd;
+}
 function renderBreakdownStat(key: string, value: number) {
   const percentageKeys = new Set(['FIGHT_PROP_HP_PERCENT','FIGHT_PROP_ATTACK_PERCENT','FIGHT_PROP_DEFENSE_PERCENT','FIGHT_PROP_CRITICAL','FIGHT_PROP_CRITICAL_HURT','FIGHT_PROP_CHARGE_EFFICIENCY','FIGHT_PROP_HEAL_ADD','FIGHT_PROP_FIRE_ADD_HURT','FIGHT_PROP_ELEC_ADD_HURT','FIGHT_PROP_WATER_ADD_HURT','FIGHT_PROP_GRASS_ADD_HURT','FIGHT_PROP_WIND_ADD_HURT','FIGHT_PROP_ROCK_ADD_HURT','FIGHT_PROP_ICE_ADD_HURT','FIGHT_PROP_PHYSICAL_ADD_HURT']);
   return percentageKeys.has(key) ? percentText(value) : numberText(value);
@@ -150,6 +160,7 @@ function DetailModal({ character: c, onClose }: { character: Character; onClose:
       <section className="detail-section"><p className="detail-heading">ARTIFACT BREAKDOWN</p><div className="detail-artifacts">{c.artifacts.map(a=><div className="artifact-detail-card" key={`${a.name}-${a.slot}`}>
         <div className="artifact-head">{a.icon&&<img className="artifact-img" src={a.icon} alt=""/>}<div><b>{a.name}</b><span>{a.setName} · {a.slot} · +{a.level}</span></div></div>
         <div className="artifact-main"><span>{a.mainStat.label}</span><b>{a.mainStat.value}</b></div>
+        <div className="artifact-cv"><span>CRIT VALUE</span><b>{artifactCV(a).toFixed(1)}</b></div>
         <div className="artifact-subs">{a.substats.map((sub,i)=><div key={i}><span>{sub.label}</span><b>{sub.value}</b></div>)}</div>
       </div>)}</div></section>
     </div>
