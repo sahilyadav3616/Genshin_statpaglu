@@ -2,6 +2,8 @@
 
 A standalone Next.js reimplementation of the Genshin public-showcase viewer.
 
+**Live deployment:** https://genshin-statpaglu.onrender.com/
+
 ## Requirements
 - Node.js 20.9+
 - npm
