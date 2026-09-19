@@ -468,10 +468,12 @@ function characterImageFromMetadata(c) {
 }
 
 function talentRows(raw, meta) {
-  const metaTalents = Array.isArray(meta?.talents) ? meta.talents : [];
   const levels = raw?.skillLevelMap || {};
-  if (metaTalents.length) return metaTalents.map((t, i) => ({ name: getStr(t.name || t.skillName || 'Talent'), level: Number(t.level ?? Object.values(levels)[i] ?? 1) }));
-  return Object.values(levels).map((level, i) => ({ name: `Talent ${i + 1}`, level: Number(level) || 1 }));
+  const values = Object.values(levels).slice(0, 3);
+  // skillLevelMap contains the actual three combat talent levels.
+  // Wrapper talent metadata can also include passive/inherent talents, so
+  // do not use its array order to label Normal Attack / Skill / Burst.
+  return values.map((level, i) => ({ name: ['Normal Attack', 'Elemental Skill', 'Elemental Burst'][i], level: Number(level) || 1 }));
 }
 
 function constellationCount(raw) {
