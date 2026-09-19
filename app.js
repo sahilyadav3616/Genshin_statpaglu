@@ -35,6 +35,17 @@ function topStats(stats){
 function statHTML(stats){
   return topStats(stats).map(s=>`<div class="stat"><span>${escapeHTML(s.label.toUpperCase())}</span><b>${escapeHTML(s.value)}</b></div>`).join('');
 }
+function artifactCV(a){
+  const subs = a.substats || [];
+  let cr = 0, cd = 0;
+  subs.forEach(sub => {
+    const label = String(sub.label || '').toLowerCase();
+    const value = Number(sub.rawValue ?? String(sub.value || '').replace('%','')) || 0;
+    if (label.includes('crit rate')) cr += value;
+    if (label.includes('crit dmg') || label.includes('crit damage')) cd += value;
+  });
+  return cr * 2 + cd;
+}
 function renderBreakdownStat(key,value){
   const percentageKeys = new Set(['FIGHT_PROP_HP_PERCENT','FIGHT_PROP_ATTACK_PERCENT','FIGHT_PROP_DEFENSE_PERCENT','FIGHT_PROP_CRITICAL','FIGHT_PROP_CRITICAL_HURT','FIGHT_PROP_CHARGE_EFFICIENCY','FIGHT_PROP_HEAL_ADD','FIGHT_PROP_FIRE_ADD_HURT','FIGHT_PROP_ELEC_ADD_HURT','FIGHT_PROP_WATER_ADD_HURT','FIGHT_PROP_GRASS_ADD_HURT','FIGHT_PROP_WIND_ADD_HURT','FIGHT_PROP_ROCK_ADD_HURT','FIGHT_PROP_ICE_ADD_HURT','FIGHT_PROP_PHYSICAL_ADD_HURT']);
   return percentageKeys.has(key) ? percentText(value) : numberText(value);
@@ -52,7 +63,7 @@ function openDetail(index){
   const base=bd.baseCharacter||{}, bonus=bd.bonus||{};
   modal.querySelector('.artifact-summary').innerHTML=`<div class="breakdown-grid"><div class="breakdown-box"><span>CHARACTER BASE HP</span><b>${numberText(base.HP)}</b><small>Before equipment bonuses</small></div><div class="breakdown-box"><span>CHARACTER BASE ATK</span><b>${numberText(base.ATK)}</b><small>Character only, before weapon/artifacts</small></div><div class="breakdown-box"><span>WEAPON BASE ATK</span><b>${numberText(bd.weapon?.baseAttack)}</b><small>Weapon base attack</small></div><div class="breakdown-box"><span>CHARACTER BASE DEF</span><b>${numberText(base.DEF)}</b><small>Before equipment bonuses</small></div><div class="breakdown-box"><span>EQUIPMENT BONUS ATK</span><b>+${numberText(bonus.ATK)}</b><small>Final ATK − character + weapon base</small></div><div class="breakdown-box"><span>EQUIPMENT BONUS HP</span><b>+${numberText(bonus.HP)}</b><small>Final HP − character base</small></div><div class="breakdown-box"><span>EQUIPMENT BONUS DEF</span><b>+${numberText(bonus.DEF)}</b><small>Final DEF − character base</small></div><div class="breakdown-box wide"><span>ARTIFACT CONTRIBUTIONS</span><div class="artifact-contribution-grid">${artifactRows || '<span class="detail-empty">No artifact contribution data available.</span>'}</div></div></div>`;
   modal.querySelector('.detail-talents').innerHTML = c.talents.length ? c.talents.slice(0,3).map((t,i)=>`<div class="detail-stat"><span>${['Normal Attack','Elemental Skill','Elemental Burst'][i]}</span><b>Lv. ${t.level}</b></div>`).join('') : '<p class="detail-empty">No talent data available.</p>';
-  modal.querySelector('.detail-artifacts').innerHTML = c.artifacts.length ? c.artifacts.map(a => `<div class="artifact-detail-card"><div class="artifact-head">${a.icon ? `<img class="artifact-img" src="${escapeHTML(a.icon)}" alt="" loading="lazy" />` : ''}<div><b>${escapeHTML(a.name)}</b><span>${escapeHTML(a.setName)} · ${escapeHTML(a.slot)} · +${a.level}</span></div></div><div class="artifact-main"><span>${escapeHTML(a.mainStat.label)}</span><b>${escapeHTML(a.mainStat.value)}</b></div><div class="artifact-subs">${a.substats?.length ? a.substats.map(sub=>`<div><span>${escapeHTML(sub.label)}</span><b>${escapeHTML(sub.value)}</b></div>`).join('') : '<span class="detail-empty">No substats supplied</span>'}</div></div>`).join('') : '<p class="detail-empty">No artifact data available.</p>';
+  modal.querySelector('.detail-artifacts').innerHTML = c.artifacts.length ? c.artifacts.map(a => `<div class="artifact-detail-card"><div class="artifact-head">${a.icon ? `<img class="artifact-img" src="${escapeHTML(a.icon)}" alt="" loading="lazy" />` : ''}<div><b>${escapeHTML(a.name)}</b><span>${escapeHTML(a.setName)} · ${escapeHTML(a.slot)} · +${a.level}</span></div></div><div class="artifact-main"><span>${escapeHTML(a.mainStat.label)}</span><b>${escapeHTML(a.mainStat.value)}</b></div><div class="artifact-cv"><span>CRIT VALUE</span><b>${artifactCV(a).toFixed(1)}</b></div><div class="artifact-subs">${a.substats?.length ? a.substats.map(sub=>`<div><span>${escapeHTML(sub.label)}</span><b>${escapeHTML(sub.value)}</b></div>`).join('') : '<span class="detail-empty">No substats supplied</span>'}</div></div>`).join('') : '<p class="detail-empty">No artifact data available.</p>';
   modal.classList.remove('hidden');
 }
 function closeDetail(){document.querySelector('#detailModal').classList.add('hidden')}
