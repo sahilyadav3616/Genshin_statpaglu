@@ -106,3 +106,14 @@ document.querySelector('#filterInput').addEventListener('input',e=>renderRoster(
 document.querySelector('#detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal'||e.target.closest('.detail-close'))closeDetail()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
 // Do not load a profile automatically; the UID field starts empty.
+/* Teyvat Radio — public YouTube embeds, no account required. */
+const OST_PLAYLISTS=['OLAK5uy_mh7Qj9RzVthPsrRo2w8ouE-xmQHXLGzqs','OLAK5uy_nH3djc02OBm-qDh2ITZcoWxNOkbT2mfmw','OLAK5uy_lf8ZuhoICESI_ZXxd8eWu5tkIegnQG6Jo'];
+let ostPlayer=null,ostReady=false;
+function setOstStatus(title,playing){const t=document.querySelector('#ostTitle'),s=document.querySelector('#ostStatus'),p=document.querySelector('#ostPlay');if(t)t.textContent=title||'GENSHIN OST';if(s)s.textContent=playing?'NOW PLAYING · HOYO-MIX':'PAUSED · HOYO-MIX';if(p)p.textContent=playing?'Ⅱ':'▶';}
+function loadRandomOstPlaylist(){if(!ostPlayer||!ostReady)return;const list=OST_PLAYLISTS[Math.floor(Math.random()*OST_PLAYLISTS.length)];ostPlayer.loadPlaylist({listType:'playlist',list});ostPlayer.setShuffle(true);}
+function initOstPlayer(){if(ostPlayer||!window.YT||!YT.Player)return;ostPlayer=new YT.Player('ostYoutube',{width:'1',height:'1',playerVars:{autoplay:0,controls:0,rel:0,playsinline:1},events:{onReady:()=>{ostReady=true;loadRandomOstPlaylist();setOstStatus('GENSHIN OST',false);},onStateChange:e=>{if(e.data===YT.PlayerState.PLAYING){let title='GENSHIN OST';try{title=e.target.getVideoData().title||title}catch(_){}setOstStatus(title,true);}else if(e.data===YT.PlayerState.PAUSED)setOstStatus(document.querySelector('#ostTitle')?.textContent,false);else if(e.data===YT.PlayerState.ENDED)e.target.nextVideo();}}});}
+window.onYouTubeIframeAPIReady=initOstPlayer;
+const ytScript=document.createElement('script');ytScript.src='https://www.youtube.com/iframe_api';ytScript.async=true;document.head.appendChild(ytScript);
+document.querySelector('#ostPlay')?.addEventListener('click',()=>{if(!ostPlayer||!ostReady)return;if(ostPlayer.getPlayerState()===YT.PlayerState.PLAYING)ostPlayer.pauseVideo();else ostPlayer.playVideo();});
+document.querySelector('#ostPrev')?.addEventListener('click',()=>{if(ostPlayer&&ostReady)ostPlayer.previousVideo();});
+document.querySelector('#ostNext')?.addEventListener('click',()=>{if(ostPlayer&&ostReady)ostPlayer.nextVideo();});
