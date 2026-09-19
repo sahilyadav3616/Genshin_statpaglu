@@ -125,3 +125,30 @@
 
 /* Teyvat Radio mini-player */
 .ost-player{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 8px;padding:13px 15px;border:1px solid rgba(255,255,255,.10);border-radius:9px;background:linear-gradient(100deg,rgba(18,18,31,.84),rgba(24,22,40,.66));backdrop-filter:blur(12px);box-shadow:0 12px 40px rgba(0,0,0,.18);overflow:hidden}.ost-player:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--purple),var(--mint))}.ost-copy{min-width:0;display:flex;flex-direction:column;gap:3px}.ost-copy .eyebrow{margin:0;font-size:8px}.ost-copy strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(540px,60vw)}.ost-copy small{font:8px 'DM Mono';color:#77798b;letter-spacing:.5px}.ost-controls{display:flex;gap:5px;flex:0 0 auto}.ost-controls button{width:31px;height:31px;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(255,255,255,.045);color:#e9e6f4;cursor:pointer;font:18px/1 Outfit}.ost-controls button:nth-child(2){background:rgba(168,255,224,.13);border-color:rgba(168,255,224,.25);color:var(--mint);font-size:12px}.ost-controls button:hover{border-color:var(--mint);color:var(--mint)}.ost-video{position:absolute;width:1px;height:1px;overflow:hidden;left:-9999px;top:-9999px}@media(max-width:600px){.ost-player{padding:12px}.ost-copy strong{max-width:54vw}.ost-controls button{width:29px;height:29px}}
+
+/* Responsive viewport + landscape layout */
+html,body{width:100%;max-width:100%;min-width:0}
+.shell{width:min(1200px,calc(100% - clamp(24px,6vw,48px)));max-width:100%}
+.uid-form input{max-width:100%}
+@media(max-width:800px){.shell{width:min(100% - 32px,1200px)}.hero{max-width:none}.profile-panel{min-width:0}.profile-identity,.profile-stats{min-width:0}.roster{grid-template-columns:repeat(2,minmax(0,1fr))}.build-card{min-width:0}.equipment b{max-width:clamp(90px,16vw,150px)}}
+@media(max-width:530px){.shell{width:calc(100% - 24px)}.uid-form{width:100%}.uid-form button{white-space:nowrap}.profile-stats{min-width:0}.profile-stats b{font-size:15px}.section-heading{gap:12px}.section-heading>div{min-width:0}.section-heading h2{overflow-wrap:anywhere}.roster{grid-template-columns:1fr}.build-card{width:100%;min-width:0}}
+@media(orientation:landscape) and (max-height:600px){
+  .topbar{height:62px}
+  .hero{padding:30px 0 28px;max-width:100%}
+  .hero h1{font-size:clamp(42px,8vw,68px);letter-spacing:-3px}
+  .hero>p{font-size:14px;line-height:1.45;max-width:680px;margin:15px 0}
+  .uid-form{margin-top:16px}
+  .profile-panel{min-height:86px;padding:14px 18px;gap:24px}
+  .profile-identity{min-width:190px}.profile-mark{width:40px;height:40px;font-size:17px}
+  .profile-identity h2{font-size:18px}.profile-stats{gap:22px}.profile-stats b{font-size:15px}
+  .collection{padding:42px 0}.section-heading{margin-bottom:16px}
+  .build-card{min-height:365px;padding:15px}.char-image{height:225px}.character-title{margin-top:92px}.portrait{height:105px}
+  .key-stats{margin:13px 0}.equipment{padding:10px 0 8px}
+  .modal{padding:12px}.modal-content{max-height:94vh;padding:24px}
+  .ost-player{padding:10px 12px}
+}
+@media(max-width:900px) and (orientation:landscape){
+  .nav-status,.source-link{display:none}
+  .roster{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:1200px){.shell{width:min(1200px,calc(100% - 64px))}}
