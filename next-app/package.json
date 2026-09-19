@@ -1,0 +1,28 @@
+{
+  "name": "genshin-statpaglu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Genshin StatPaglu — a clean Next.js Genshin public showcase viewer powered by Enka.Network.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "enkanetwork": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest"
+  }
+}
