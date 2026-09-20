@@ -479,34 +479,53 @@ function talentRows(raw, meta) {
     level: Number(levels[key])
   })).filter(x => Number.isFinite(x.level) && x.level > 0);
 
-  // Enka documents skillLevelMap as { skill_id: level }. Resolve by the
-  // actual skill ID first. If wrapper metadata uses a different ID namespace,
-  // fall back to the Genshin active-skill ID suffixes: 1=Normal, 2=Skill, 5=Burst.
-  // Only use a positional fallback when the raw map cannot be classified,
-  // so we never turn a valid 9/8/10 map into 1/1/1.
+  // Enka's skillLevelMap is { skill_id: level }. There are two useful ID
+  // namespaces in Genshin data: the character-data skill IDs and the
+  // showcase/raw skillLevelMap IDs. For Ayaka specifically:
+  //   Normal = 10024 / raw 10261
+  //   Skill  = 10018 / raw 10262
+  //   Burst  = 10019 / raw 10265
+  // Do not guess from object order when one of these IDs is available.
+  const avatarId = Number(raw?.avatarId || meta?.id || meta?.avatarId || 0);
+  const knownAliases = {
+    10000002: {
+      normal: [10024, 10261],
+      skill: [10018, 10262],
+      burst: [10019, 10265]
+    }
+  };
+
+  const skillMeta = meta?.skills || meta?.characterData?.skills || {};
   const definitions = [
-    ['Normal Attack', meta?.skills?.normalAttack ?? meta?.skills?.normalAttacks, 1, 0],
-    ['Elemental Skill', meta?.skills?.elementalSkill, 2, 1],
-    ['Elemental Burst', meta?.skills?.elementalBurst, 5, 2]
+    ['Normal Attack', skillMeta?.normalAttack ?? skillMeta?.normalAttacks, 'normal', 1, 0],
+    ['Elemental Skill', skillMeta?.elementalSkill, 'skill', 2, 1],
+    ['Elemental Burst', skillMeta?.elementalBurst, 'burst', 5, 2]
   ];
 
-  return definitions.map(([name, skill, suffix, fallbackIndex]) => {
-    const explicitIds = [];
+  return definitions.map(([name, skill, aliasKey, suffix, fallbackIndex]) => {
+    const ids = [...(knownAliases[avatarId]?.[aliasKey] || [])];
+
     if (skill && typeof skill === 'object') {
       for (const key of ['id', 'skillId', 'skillID', 'rawId', 'apiId']) {
         const n = Number(skill[key]);
-        if (Number.isFinite(n)) explicitIds.push(n);
+        if (Number.isFinite(n) && !ids.includes(n)) ids.push(n);
       }
     }
 
     let candidate = null;
-    for (const id of explicitIds) {
+
+    // 1) Exact known/raw/wrapper skill IDs.
+    for (const id of ids) {
       candidate = entries.find(x => x.id === id);
       if (candidate) break;
     }
 
-    candidate ||= entries.find(x => Math.abs(x.id) % 10 === suffix);
+    // 2) Genshin's active-skill ID suffixes: 1=Normal, 2=Skill, 5=Burst.
+    if (!candidate) {
+      candidate = entries.find(x => Math.abs(x.id) % 10 === suffix);
+    }
 
+    // 3) Last-resort classification/position fallback.
     if (!candidate) {
       const active = entries
         .filter(x => [1, 2, 5].includes(Math.abs(x.id) % 10))
@@ -521,7 +540,6 @@ function talentRows(raw, meta) {
     return { name, level: Number.isFinite(level) && level > 0 ? level : 1 };
   });
 }
-
 function constellationCount(raw) {
   return Array.isArray(raw?.talentIdList) ? raw.talentIdList.length : 0;
 }
