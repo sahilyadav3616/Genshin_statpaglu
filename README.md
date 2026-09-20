@@ -17,7 +17,7 @@ Both read public Genshin showcase data from Enka.Network. Only characters expose
 
 ### Profile & character showcase
 - UID-based public profile lookup.
-- Owner UID prefilled in the UI for convenience.
+- UID field starts empty on boot; no profile is loaded automatically.
 - Character cards with level and constellation information.
 - Character artwork/assets sourced through Enka metadata when available.
 - Responsive layout for desktop and mobile.
