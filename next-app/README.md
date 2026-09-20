@@ -18,7 +18,9 @@ The Next.js implementation currently includes:
 - Artifact set, slot, level, main stats and substats.
 - Detailed build/stat contribution breakdown.
 - Artifact CRIT Value using artifact substats.
-- Correct Normal Attack / Elemental Skill / Elemental Burst talent mapping, including fallback handling when wrapper skill IDs differ from raw Enka IDs.
+- Correct Normal Attack / Elemental Skill / Elemental Burst talent mapping using raw skill IDs and wrapper metadata.
+- Explicit Ayaka talent aliases: Normal `10024/10261`, Skill `10018/10262`, Burst `10019/10265`.
+- Generic `1/2/5` skill-ID suffix fallback when namespaces differ.
 - Dark mode by default with a sun/moon light-mode toggle.
 - Responsive desktop/mobile UI.
 - Ayaka-inspired crystalline snowflake ambience using the supplied SVG design.
