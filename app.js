@@ -117,3 +117,17 @@ const ytScript=document.createElement('script');ytScript.src='https://www.youtub
 document.querySelector('#ostPlay')?.addEventListener('click',()=>{if(!ostPlayer||!ostReady)return;if(ostPlayer.getPlayerState()===YT.PlayerState.PLAYING)ostPlayer.pauseVideo();else ostPlayer.playVideo();});
 document.querySelector('#ostPrev')?.addEventListener('click',()=>{if(ostPlayer&&ostReady)ostPlayer.previousVideo();});
 document.querySelector('#ostNext')?.addEventListener('click',()=>{if(ostPlayer&&ostReady)ostPlayer.nextVideo();});
+
+
+/* Ayaka frost ambience: sparse crystals slowly appear, grow, then fade across background whitespace. */
+(function initFrost(){
+  const field=document.querySelector('#frostField'); if(!field)return;
+  const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const spots=[[8,16], [91,18], [5,52], [94,48], [12,84], [88,82], [48,8], [52,93], [22,39], [79,63], [35,78], [67,27]];
+  spots.forEach(([x,y],i)=>{
+    const p=document.createElement('span'); p.className='frost-patch'; p.style.left=x+'%'; p.style.top=y+'%';
+    p.style.setProperty('--rot',(i*31%70-35)+'deg'); p.style.setProperty('--dur',(12+(i%5)*2)+'s'); p.style.setProperty('--delay',(-i*1.9)+'s'); field.appendChild(p);
+  });
+  [[15,25],[85,38],[25,90],[73,12]].forEach(([x,y],i)=>{const e=document.createElement('span');e.className='frost-edge';e.style.left=x+'%';e.style.top=y+'%';e.style.animationDelay=(-i*2.1)+'s';field.appendChild(e)});
+  if(reduce)field.setAttribute('data-reduced-motion','true');
+})();
