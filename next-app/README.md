@@ -10,7 +10,7 @@ A standalone Next.js implementation of the Genshin public-showcase viewer.
 
 ## Features
 The Next.js implementation currently includes:
-- UID-based public profile lookup with the owner UID prefilled.
+- UID-based public profile lookup with an empty UID field on boot; no profile is loaded automatically.
 - Character showcase cards with level and constellation information.
 - Raw Enka combat stats for HP, ATK, DEF, Elemental Mastery, CRIT Rate, CRIT DMG and Energy Recharge.
 - Elemental DMG Bonus values when present.
