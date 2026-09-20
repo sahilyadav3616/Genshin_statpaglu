@@ -254,7 +254,8 @@ function DetailModal({ character: c, onClose }: { character: Character; onClose:
       <button className="detail-close" onClick={onClose} aria-label="Close">✕</button>
       <p className="eyebrow">FULL BUILD BREAKDOWN</p>
       <h2 className="detail-title">{c.name}</h2>
-      <AdvisorSection character={c}/>\n      <p className="detail-sub">Level {c.level} · C{c.constellation} · {c.weapon ? `${c.weapon.rarity}★ ${c.weapon.name} R${c.weapon.refinement}` : 'No weapon data'}</p>
+      <AdvisorSection character={c}/>
+      <p className="detail-sub">Level {c.level} · C{c.constellation} · {c.weapon ? `${c.weapon.rarity}★ ${c.weapon.name} R${c.weapon.refinement}` : 'No weapon data'}</p>
       <section className="detail-section"><p className="detail-heading">WEAPON</p><div className="breakdown-grid">
         <Breakdown label="BASE ATK" value={numberText(weapon?.baseAttack)} note="Weapon base attack" wide/>
         {(weapon?.stats || []).filter(x=>x.key!=='FIGHT_PROP_BASE_ATTACK').map((x,i)=><Breakdown key={i} label={x.label} value={x.percent?percentText(x.value):numberText(x.value)} note="Weapon secondary"/>)}
