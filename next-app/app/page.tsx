@@ -109,7 +109,7 @@ export default function Home() {
         </div>
       </section>
       <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
-      {selectedCharacter && <DetailModal character={selectedCharacter} onClose={()=>setSelected(null)} />}
+      {selectedCharacter && <DetailModal character={selectedCharacter} uid={uid} onClose={()=>setSelected(null)} />}
     </main>
   );
 }
@@ -141,7 +141,7 @@ function OstPlayer() {
   return <section className="ost-player" aria-label="Genshin Impact OST player"><div className="ost-copy"><span className="eyebrow">TEYVAT RADIO</span><strong>{title}</strong><small>{playing?'NOW PLAYING · HOYO-MIX':'PRESS PLAY · HOYO-MIX'}</small></div><div className="ost-controls"><button type="button" aria-label="Previous track" onClick={()=>playerRef.current?.previousVideo()}>‹</button><button type="button" aria-label="Play or pause" onClick={toggle}>{playing?'Ⅱ':'▶'}</button><button type="button" aria-label="Next track" onClick={()=>playerRef.current?.nextVideo()}>›</button></div><div className="ost-video" aria-hidden="true"><div id="ostYoutube"/></div></section>;
 }
 
-function DetailModal({ character: c, onClose }: { character: Character; onClose: () => void }) {
+function DetailModal({ character: c, uid, onClose }: { character: Character; uid:string; onClose: () => void }) {
   const bd = c.breakdown || {};
   const weapon = bd.weapon || c.weapon;
   const artifactRows = Object.entries(bd.artifacts || {}).map(([key,value])=>({key,value}));
@@ -167,13 +167,48 @@ function DetailModal({ character: c, onClose }: { character: Character; onClose:
         <div className="breakdown-box wide"><span>ARTIFACT CONTRIBUTIONS</span><div className="artifact-contribution-grid">{artifactRows.length ? artifactRows.map(({key,value})=><div className="detail-stat" key={key}><span>{key.replace(/^FIGHT_PROP_/,'').replace(/_/g,' ')}</span><b>{renderBreakdownStat(key,value)}</b></div>) : <span className="detail-empty">No artifact contribution data available.</span>}</div></div>
       </div></section>
       <section className="detail-section"><p className="detail-heading">TALENTS</p><div className="detail-grid">{c.talents.slice(0,3).map((t,i)=><div className="detail-stat" key={i}><span>{['Normal Attack','Elemental Skill','Elemental Burst'][i]}</span><b>Lv. {t.level}</b></div>)}</div></section>
-      <section className="detail-section"><p className="detail-heading">ARTIFACT BREAKDOWN</p><div className="detail-artifacts">{c.artifacts.map(a=><div className="artifact-detail-card" key={`${a.name}-${a.slot}`}>
+      <section className="detail-section"><p className="detail-heading">WORLD BUILD COMPARISON</p><WorldBenchmark uid={uid} character={c}/></section><section className="detail-section"><p className="detail-heading">ARTIFACT BREAKDOWN</p><div className="detail-artifacts">{c.artifacts.map(a=><div className="artifact-detail-card" key={`${a.name}-${a.slot}`}>
         <div className="artifact-head">{a.icon&&<img className="artifact-img" src={a.icon} alt=""/>}<div><b>{a.name}</b><span>{a.setName} · {a.slot} · +{a.level}</span></div></div>
         <div className="artifact-main"><span>{a.mainStat.label}</span><b>{a.mainStat.value}</b></div>
         <div className="artifact-cv"><span>CRIT VALUE</span><b>{artifactCV(a).toFixed(1)}</b></div>
         <div className="artifact-subs">{a.substats.map((sub,i)=><div key={i}><span>{sub.label}</span><b>{sub.value}</b></div>)}</div>
       </div>)}</div></section>
     </div>
+  </div>;
+}
+type Benchmark = {
+  rank:number; nickname:string; damage:number; buildName:string; constellation:number; critValue:number;
+  weapon?: {name:string; level:number; refinement:number; icon?:string|null}|null;
+  stats:{label:string; value:number; display:string}[];
+};
+function WorldBenchmark({ uid, character }: { uid:string; character:Character }) {
+  const [data,setData]=useState<Benchmark|null>(null);
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState('');
+  async function compare() {
+    setLoading(true); setError('');
+    try {
+      const res=await fetch(`/api/benchmark/${uid}/${character.id}`,{cache:'no-store'});
+      const body=await res.json();
+      if(!res.ok) throw new Error(body.error||'World benchmark unavailable.');
+      setData(body);
+    } catch(e:any) { setError(e?.message||'World benchmark unavailable.'); }
+    finally { setLoading(false); }
+  }
+  const statMap=Object.fromEntries((data?.stats||[]).map(s=>[s.label,s.value]));
+  const rows=['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'].map(label=>{
+    const theirs=Number(statMap[label]); if(!Number.isFinite(theirs)) return null;
+    const mine=character.stats.find(s=>s.label===label);
+    const m=Number(mine?.rawValue ?? String(mine?.value||'').replace('%',''))||0;
+    const isPct=['CRIT Rate','CRIT DMG','Energy Recharge'].includes(label);
+    const delta=theirs-m;
+    return <div className="benchmark-stat" key={label}><span>{label}</span><b>{isPct?`${(theirs*100).toFixed(1)}%`:Math.round(theirs).toLocaleString()}</b><small className={delta>=0?'up':'down'}>{delta===0?'—':`${delta>0?'+':''}${isPct?`${(delta*100).toFixed(1)}%`:Math.round(delta).toLocaleString()}`}</small></div>;
+  }).filter(Boolean);
+  return <div className="world-benchmark">
+    {!data && !loading && !error && <button className="benchmark-button" onClick={compare}>COMPARE WITH WORLD #1</button>}
+    {loading && <div className="benchmark-loading">LOADING WORLD #1 BENCHMARK<span/></div>}
+    {error && <p className="detail-empty benchmark-error">{error}</p>}
+    {data && <><div className="benchmark-head"><div><span>WORLD #1 BENCHMARK</span><strong>{data.nickname}</strong><small>{data.buildName||'Global leaderboard build'}</small></div><div className="benchmark-damage"><span>LEADERBOARD RESULT</span><b>{Math.round(data.damage).toLocaleString()}</b><small>Rank #{data.rank}</small></div></div><div className="benchmark-weapon">{data.weapon?.icon&&<img src={data.weapon.icon} alt=""/>}<div><span>WEAPON</span><b>{data.weapon?.name||'Unknown'}</b><small>Lv. {data.weapon?.level||90} · R{data.weapon?.refinement||1} · C{data.constellation}</small></div><div className="benchmark-cv"><span>CV</span><b>{data.critValue.toFixed(1)}</b></div></div><div className="benchmark-grid">{rows.length?rows:<p className="detail-empty">No comparable stat data supplied by the leaderboard.</p>}</div><button className="benchmark-button benchmark-refresh" onClick={compare}>REFRESH BENCHMARK</button></>}
   </div>;
 }
 function Breakdown({label,value,note,wide=false}:{label:string;value:string;note:string;wide?:boolean}) {
