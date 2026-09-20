@@ -61,8 +61,12 @@
       <section class="support-panel">
         <span class="eyebrow">SUPPORT THE PROJECT</span>
         <p>If StatPaglu helped you, you can support development.</p>
-        <div class="upi-id">UPI: <b>sahilyadav3616.1@oksbi</b></div>
-        <a class="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ SUPPORT VIA UPI</a>
+        <div class="upi-id">UPI: <b id="upiId">sahilyadav3616.1@oksbi</b></div>
+        <div class="upi-actions">
+          <a class="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR" data-upi-link>♡ OPEN UPI APP</a>
+          <button class="upi-copy" type="button" data-copy-upi>COPY UPI ID</button>
+        </div>
+        <small class="upi-fallback" id="upiFallback">If the UPI app does not open, copy the UPI ID and pay from your preferred app.</small>
       </section>
     </main>
     <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
