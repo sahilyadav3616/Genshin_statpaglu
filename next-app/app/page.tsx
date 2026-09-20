@@ -109,11 +109,17 @@ export default function Home() {
           <div className="hero-badge"><span>STATPAGLU</span><strong>BUILD<br/>CHECK</strong><small>01 / LIVE</small></div>
         </div>
       </section>
-      {profile && <section className="profile-panel">
-        <div className="profile-identity"><div className="profile-mark">{(profile.playerInfo.nickname || '?')[0].toUpperCase()}</div><div><span>TRAVELER PROFILE</span><h2>{profile.playerInfo.nickname || 'Unknown Traveler'}</h2></div></div>
-        <div className="profile-stats"><div><span>ADVENTURE RANK</span><b>AR {profile.playerInfo.level || '—'}</b></div><div><span>WORLD LEVEL</span><b>WL {profile.playerInfo.worldLevel ?? '—'}</b></div><div><span>SPIRAL ABYSS</span><b>{profile.playerInfo.abyss || '—'}</b></div></div>
-        <div className="profile-meta"><span>{regionByPrefix[String(profile.uid)[0]] || 'UNKNOWN'}</span><span>UID <b>{profile.uid}</b></span></div>
-      </section>}
+      <section className={`profile-panel ${profile ? '' : 'paimon-panel'}`}>
+        {profile ? <>
+          <div className="profile-identity"><div className="profile-mark">{(profile.playerInfo.nickname || '?')[0].toUpperCase()}</div><div><span>TRAVELER PROFILE</span><h2>{profile.playerInfo.nickname || 'Unknown Traveler'}</h2></div></div>
+          <div className="profile-stats"><div><span>ADVENTURE RANK</span><b>AR {profile.playerInfo.level || '—'}</b></div><div><span>WORLD LEVEL</span><b>WL {profile.playerInfo.worldLevel ?? '—'}</b></div><div><span>SPIRAL ABYSS</span><b>{profile.playerInfo.abyss || '—'}</b></div></div>
+          <div className="profile-meta"><span>{regionByPrefix[String(profile.uid)[0]] || 'UNKNOWN'}</span><span>UID <b>{profile.uid}</b></span></div>
+        </> : <>
+          <div className="paimon-art"><img src="https://webstatic-sea.mihoyo.com/ys/event/e20200910-predrawcard-sea/images/paimeng.5b13a1fb.png" alt="Paimon" /></div>
+          <div className="paimon-copy"><span className="eyebrow">PAIMON'S ON DUTY</span><h2>No profile loaded yet!</h2><p>Enter a public UID above and Paimon will bring the Traveler's builds here.</p></div>
+          <div className="paimon-badge">UID<br/>REQUIRED</div>
+        </>}
+      </section>
       <section className="collection">
         <div className="section-heading"><div><span className="eyebrow">PUBLIC SHOWCASE</span><h2>Character roster <small>{profile ? `${profile.characters.length} builds` : '— builds'}</small></h2></div><button className="ghost-button" onClick={()=>loadProfile(uid)}>↻ REFRESH</button></div>
         <input className="filter-input" value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filter showcased characters by name…" aria-label="Filter characters" />
