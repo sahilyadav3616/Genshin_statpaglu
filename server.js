@@ -567,94 +567,33 @@ async function fetchRaw(uid) {
   return data;
 }
 
+async function buildProfile(uid) {
+  // Raw API is authoritative for character stats; wrapper metadata is used only to enrich names/assets/equipment when needed.
+  const raw = await fetchRaw(uid);
+  let wrapped = null;
+  try { wrapped = await enka.fetchUser(Number(uid)); } catch (_) { /* metadata fallback only */ }
 
-async function fetchWorldBenchmark(uid, characterId) {
-  const charId = Number(characterId);
-  if (!Number.isFinite(charId)) throw Object.assign(new Error('Invalid character ID.'), { status: 400 });
+  const wrappedChars = wrapped?.characters || [];
+  const metaById = new Map(wrappedChars.map(c => [Number(c?.id || c?.avatarId || c?.characterData?.id), c]));
+  const avatars = Array.isArray(raw.avatarInfoList) ? raw.avatarInfoList : [];
 
-  const categoriesRes = await fetch(
-    `https://akasha.cv/api/v2/leaderboards/categories?characterId=${encodeURIComponent(charId)}`,
-    { headers: { 'User-Agent': 'Genshin-StatPaglu/benchmark', 'Accept': 'application/json' } }
-  );
-  const categoriesBody = await categoriesRes.text();
-  let categoriesData;
-  try { categoriesData = JSON.parse(categoriesBody); }
-  catch (_) { throw Object.assign(new Error(`Benchmark service returned invalid JSON (HTTP ${categoriesRes.status})`), { status: 502 }); }
-  if (!categoriesRes.ok) {
-    const message = categoriesData?.message || categoriesData?.error || `Benchmark service failed (HTTP ${categoriesRes.status})`;
-    throw Object.assign(new Error(message), { status: categoriesRes.status });
-  }
-
-  const categories = Array.isArray(categoriesData)
-    ? categoriesData
-    : (Array.isArray(categoriesData?.data) ? categoriesData.data : []);
-  const category = categories[0];
-  const calculationId = category?.weapons?.[0]?.calculationId || category?.calculationId || category?._id || category?.id;
-  if (!calculationId) throw Object.assign(new Error('No public world leaderboard is available for this character yet.'), { status: 404 });
-
-  const boardRes = await fetch(
-    `https://akasha.cv/api/leaderboards?calculationId=${encodeURIComponent(calculationId)}&size=1&page=1&sort=calculation.result&order=-1`,
-    { headers: { 'User-Agent': 'Genshin-StatPaglu/benchmark', 'Accept': 'application/json' } }
-  );
-  const boardBody = await boardRes.text();
-  let boardData;
-  try { boardData = JSON.parse(boardBody); }
-  catch (_) { throw Object.assign(new Error(`Benchmark service returned invalid leaderboard JSON (HTTP ${boardRes.status})`), { status: 502 }); }
-  if (!boardRes.ok) {
-    const message = boardData?.message || boardData?.error || `Leaderboard request failed (HTTP ${boardRes.status})`;
-    throw Object.assign(new Error(message), { status: boardRes.status });
-  }
-
-  const rows = Array.isArray(boardData)
-    ? boardData
-    : (Array.isArray(boardData?.data) ? boardData.data : []);
-  const top = rows[0];
-  if (!top) throw Object.assign(new Error('No public world benchmark is available for this character yet.'), { status: 404 });
-
-  const stats = Object.entries(top.stats || {}).map(([key, raw]) => {
-    const value = Number(raw?.value ?? raw?.val ?? raw);
-    if (!Number.isFinite(value)) return null;
-    const label = ({
-      FIGHT_PROP_HP:'HP', FIGHT_PROP_ATTACK:'ATK', FIGHT_PROP_DEFENSE:'DEF',
-      FIGHT_PROP_ELEMENT_MASTERY:'Elemental Mastery', FIGHT_PROP_CHARGE_EFFICIENCY:'Energy Recharge',
-      FIGHT_PROP_CRITICAL:'CRIT Rate', FIGHT_PROP_CRITICAL_HURT:'CRIT DMG'
-    })[key] || String(key).replace(/^FIGHT_PROP_/,'').replace(/_/g,' ');
-    const percent = /CRITICAL|CHARGE_EFFICIENCY|_PERCENT$/.test(key);
-    return { label, value, display: percent ? `${(value * 100).toFixed(1)}%` : Math.round(value).toLocaleString() };
-  }).filter(Boolean);
-
-  const weapon = top.weapon || {};
+  const characters = avatars.map(a => serializeCharacter(a, metaById.get(Number(a.avatarId)) || {}));
+  const p = raw.playerInfo || {};
   return {
-    rank: Number(top.rank ?? 1),
-    nickname: top.owner?.nickname || 'Anonymous',
-    uid: String(top.uid || ''),
-    damage: Number(top.calculation?.result ?? top.result ?? 0),
-    buildName: top.build_name || top.buildName || category?.name || 'Leaderboard Build',
-    characterId: Number(top.characterId ?? charId),
-    constellation: Number(top.constellation ?? 0),
-    critValue: Number(top.critValue ?? 0),
-    weapon: top.weapon ? {
-      name: weapon.name || 'Unknown Weapon',
-      level: Number(weapon.level ?? 90),
-      refinement: Number(weapon.refinement ?? weapon.refine ?? 1),
-      icon: weapon.icon ? (String(weapon.icon).startsWith('http') ? weapon.icon : `https://enka.network/ui/${weapon.icon}.png`) : null
-    } : null,
-    stats
+    uid,
+    playerInfo: {
+      nickname: p.nickname || wrapped?.player?.username || wrapped?.player?.nickname || 'Traveler',
+      level: Number(p.level || p.adventureRank || wrapped?.player?.levels?.rank || 0),
+      worldLevel: Number(p.worldLevel ?? wrapped?.player?.levels?.world ?? 0),
+      abyss: p.towerFloorIndex ? `${p.towerFloorIndex}-${p.towerLevelIndex || ''}` : (wrapped?.player?.abyssFloor ? `${wrapped.player.abyssFloor}-${wrapped.player.abyssChamber || ''}` : null)
+    },
+    characters
   };
 }
+
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
-  const benchmarkMatch = url.pathname.match(/^\/api\/benchmark\/(\d{8,10})\/(\d+)$/);
   const match = url.pathname.match(/^\/api\/profile\/(\d{8,10})$/);
-
-  if (benchmarkMatch) {
-    try {
-      const data = await fetchWorldBenchmark(benchmarkMatch[1], benchmarkMatch[2]);
-      return send(res, 200, JSON.stringify(data));
-    } catch (err) {
-      return send(res, err.status || 502, JSON.stringify({ error: err.message || 'World benchmark unavailable' }));
-    }
-  }
 
   if (match) {
     const uid = match[1];
