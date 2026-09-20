@@ -43,8 +43,9 @@ Both read public Genshin showcase data from Enka.Network. Only characters expose
 
 ### Talents
 - Normal Attack, Elemental Skill and Elemental Burst levels.
-- Talent levels are resolved from Enka's skillLevelMap using the actual skill IDs when possible.
-- A suffix fallback is used when wrapper metadata IDs do not match the raw Enka IDs, preventing characters such as Ayaka from incorrectly showing 1/1/1.
+- Talent levels are resolved from Enka's `skillLevelMap` using actual skill IDs when possible.
+- Character-specific aliases are supported where Genshin's character-data skill IDs and raw showcase skill IDs use different namespaces; Ayaka is explicitly mapped as Normal `10024/10261`, Skill `10018/10262`, Burst `10019/10265`.
+- A stable `1/2/5` skill-ID suffix fallback is retained for other characters when wrapper metadata IDs do not match the raw Enka IDs, preventing characters such as Ayaka from incorrectly showing 1/1/1.
 
 ### UI & ambience
 - Dark theme is the default.
@@ -163,9 +164,9 @@ Since the previous project documentation pass, the repository has been expanded 
 - Added raw Enka combat-stat parsing with extended final-stat handling.
 - Added robust weapon and artifact parsing plus detailed contribution breakdowns.
 - Added artifact CRIT Value display.
-- Added correct Normal/Skill/Burst talent mapping and a fallback for wrapper/raw skill-ID mismatches.
+- Added explicit character/raw skill-ID aliasing for talent levels, including Ayaka's `10024/10261`, `10018/10262`, and `10019/10265` mappings, plus the generic `1/2/5` fallback.
 - Added a dark-default sun/moon theme switch and light mode.
-- Added owner UID prefill.
+- Kept the UID field empty on boot so profiles are never loaded automatically.
 - Added the Teyvat Radio OST mini-player with multiple playlist sources and character-track filtering.
 - Added the supplied Ayaka crystalline snowflake design as an SVG asset and ambient animation in both implementations.
 - Added a UPI support section and mobile UPI deep link.
