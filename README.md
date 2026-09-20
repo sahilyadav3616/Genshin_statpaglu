@@ -4,6 +4,13 @@ A Genshin Impact character showcase and stat viewer powered by Enka.Network.
 
 **Live deployment:** https://genshin-statpaglu.onrender.com/
 
+## SEO & discoverability
+- Primary branded search phrase: **Genshin StatPaglu**.
+- Core discovery phrases: **Genshin build viewer**, **Genshin build checker**, **Genshin UID checker**, **Genshin stats checker**, **Genshin character showcase**, **Genshin artifact stats**, and **Genshin weapon stats**.
+- Root app includes a descriptive title, meta description, canonical URL, Open Graph/Twitter metadata, and WebApplication structured data.
+- Root app exposes robots.txt and sitemap.xml for search-engine crawling.
+- The Next.js implementation includes equivalent metadata plus robots and sitemap routes.
+
 ## Current project
 
 Genshin StatPaglu currently contains two implementations:
