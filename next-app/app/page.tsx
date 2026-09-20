@@ -122,7 +122,7 @@ export default function Home() {
           {!profile ? <div className="loading">{status}<span/></div> : !characters.length ? <div className="loading">NO CHARACTERS MATCH “{filter.toUpperCase()}”</div> : characters.map(({c,i},pos)=><CharacterCard key={`${c.id}-${i}`} c={c} index={pos} onOpen={()=>setSelected(i)} />)}
         </div>
       </section>
-      <section className="support-panel"><span className="eyebrow">SUPPORT THE PROJECT</span><p>If StatPaglu helped you, you can support development.</p><div className="upi-id">UPI: <b>sahilyadav3616.1@oksbi</b></div><a className="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ SUPPORT VIA UPI</a></section>
+      <SupportPanel />
       <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
       {selectedCharacter && <DetailModal character={selectedCharacter} onClose={()=>setSelected(null)} />}
     </main>
@@ -191,6 +191,23 @@ function DetailModal({ character: c, onClose }: { character: Character; onClose:
       </div>)}</div></section>
     </div>
   </div>;
+}
+function SupportPanel() {
+  const upiId = 'sahilyadav3616.1@oksbi';
+  const copyUpi = async () => {
+    try { await navigator.clipboard.writeText(upiId); alert('UPI ID copied. Open your payment app and paste it.'); }
+    catch { alert('Copy failed. UPI ID: ' + upiId); }
+  };
+  return <section className="support-panel">
+    <span className="eyebrow">SUPPORT THE PROJECT</span>
+    <p>If StatPaglu helped you, you can support development.</p>
+    <div className="upi-id">UPI: <b>{upiId}</b></div>
+    <div className="upi-actions">
+      <a className="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ OPEN UPI APP</a>
+      <button className="upi-copy" type="button" onClick={copyUpi}>COPY UPI ID</button>
+    </div>
+    <small className="upi-fallback">If the UPI app does not open, copy the UPI ID and pay from your preferred app.</small>
+  </section>;
 }
 function Breakdown({label,value,note,wide=false}:{label:string;value:string;note:string;wide?:boolean}) {
   return <div className={`breakdown-box${wide?' wide':''}`}><span>{label}</span><b>{value}</b><small>{note}</small></div>;
