@@ -3,7 +3,6 @@ const accents = ['#a88cff','#76d9ff','#e987ff','#f6b36a','#6bdcc5','#ffd76e'];
 const priorityLabels = ['CRIT Rate','CRIT DMG','ATK','Elemental Mastery','Energy Recharge','HP','DEF'];
 const regionByPrefix = {'1':'CN','2':'CN','3':'CN','5':'CN','6':'NA','7':'EU','8':'ASIA','9':'TW / HK / MO'};
 let currentCharacters = [];
-let currentUid = '';
 
 const escapeHTML = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 const num = value => Number(value || 0);
@@ -51,30 +50,9 @@ function renderBreakdownStat(key,value){
   const percentageKeys = new Set(['FIGHT_PROP_HP_PERCENT','FIGHT_PROP_ATTACK_PERCENT','FIGHT_PROP_DEFENSE_PERCENT','FIGHT_PROP_CRITICAL','FIGHT_PROP_CRITICAL_HURT','FIGHT_PROP_CHARGE_EFFICIENCY','FIGHT_PROP_HEAL_ADD','FIGHT_PROP_FIRE_ADD_HURT','FIGHT_PROP_ELEC_ADD_HURT','FIGHT_PROP_WATER_ADD_HURT','FIGHT_PROP_GRASS_ADD_HURT','FIGHT_PROP_WIND_ADD_HURT','FIGHT_PROP_ROCK_ADD_HURT','FIGHT_PROP_ICE_ADD_HURT','FIGHT_PROP_PHYSICAL_ADD_HURT']);
   return percentageKeys.has(key) ? percentText(value) : numberText(value);
 }
-async function loadWorldBenchmark(character){
-  const box=document.querySelector('#worldBenchmark');
-  if(!box||!currentUid||!character)return;
-  box.innerHTML='<div class="benchmark-loading">LOADING WORLD #1 BENCHMARK<span></span></div>';
-  try{
-    const res=await fetch(`/api/benchmark/${currentUid}/${character.id}`);
-    const data=await res.json();
-    if(!res.ok)throw new Error(data.error||'World benchmark unavailable');
-    const statMap=Object.fromEntries((data.stats||[]).map(s=>[s.label,Number(s.value)]));
-    const rows=['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'].map(label=>{
-      const mine=character.stats?.find(s=>s.label===label)?.rawValue ?? Number(String(character.stats?.find(s=>s.label===label)?.value||'').replace('%',''));
-      const theirs=statMap[label];
-      if(!Number.isFinite(theirs))return '';
-      const isPct=['CRIT Rate','CRIT DMG','Energy Recharge'].includes(label);
-      const m=Number(mine||0), t=Number(theirs||0), delta=t-m;
-      return `<div class="benchmark-stat"><span>${escapeHTML(label)}</span><b>${isPct?((t*100).toFixed(1)+'%'):Math.round(t).toLocaleString()}</b><small class="${delta>=0?'up':'down'}">${delta===0?'—':(delta>0?'+':'')+(isPct?(delta*100).toFixed(1)+'%':Math.round(delta).toLocaleString())}</small></div>`;
-    }).filter(Boolean).join('');
-    box.innerHTML=`<div class="benchmark-head"><div><span>WORLD #1 BENCHMARK</span><strong>${escapeHTML(data.nickname)}</strong><small>${escapeHTML(data.buildName||'Global leaderboard build')}</small></div><div class="benchmark-damage"><span>LEADERBOARD RESULT</span><b>${Number(data.damage||0).toLocaleString()}</b><small>Rank #${data.rank}</small></div></div><div class="benchmark-weapon">${data.weapon?.icon?'<img src="'+escapeHTML(data.weapon.icon)+'" alt="" />':''}<div><span>WEAPON</span><b>${escapeHTML(data.weapon?.name||'Unknown')}</b><small>Lv. ${data.weapon?.level||90} · R${data.weapon?.refinement||1} · C${data.constellation||0}</small></div><div class="benchmark-cv"><span>CV</span><b>${Number(data.critValue||0).toFixed(1)}</b></div></div><div class="benchmark-grid">${rows||'<p class="detail-empty">No comparable stat data supplied by the leaderboard.</p>'}</div>`;
-  }catch(err){box.innerHTML=`<p class="detail-empty benchmark-error">${escapeHTML(err.message)}</p>`;}
-}
 function openDetail(index){
   const c = currentCharacters[index]; if(!c) return;
   const modal = document.querySelector('#detailModal');
-  modal.dataset.characterId=String(c.id);
   modal.querySelector('.detail-title').textContent = c.name;
   modal.querySelector('.detail-sub').textContent = `Level ${c.level}  ·  C${c.constellation}  ·  ${c.weapon?`${c.weapon.rarity}★ ${c.weapon.name} R${c.weapon.refinement}`:'No weapon data'}`;
   modal.querySelector('.detail-stats').innerHTML = c.stats.length ? c.stats.map(s=>`<div class="detail-stat"><span>${escapeHTML(s.label)}</span><b>${escapeHTML(s.value)}</b></div>`).join('') : '<p class="detail-empty">No stat data available.</p>';
@@ -86,7 +64,6 @@ function openDetail(index){
   modal.querySelector('.artifact-summary').innerHTML=`<div class="breakdown-grid"><div class="breakdown-box"><span>CHARACTER BASE HP</span><b>${numberText(base.HP)}</b><small>Before equipment bonuses</small></div><div class="breakdown-box"><span>CHARACTER BASE ATK</span><b>${numberText(base.ATK)}</b><small>Character only, before weapon/artifacts</small></div><div class="breakdown-box"><span>WEAPON BASE ATK</span><b>${numberText(bd.weapon?.baseAttack)}</b><small>Weapon base attack</small></div><div class="breakdown-box"><span>CHARACTER BASE DEF</span><b>${numberText(base.DEF)}</b><small>Before equipment bonuses</small></div><div class="breakdown-box"><span>EQUIPMENT BONUS ATK</span><b>+${numberText(bonus.ATK)}</b><small>Final ATK − character + weapon base</small></div><div class="breakdown-box"><span>EQUIPMENT BONUS HP</span><b>+${numberText(bonus.HP)}</b><small>Final HP − character base</small></div><div class="breakdown-box"><span>EQUIPMENT BONUS DEF</span><b>+${numberText(bonus.DEF)}</b><small>Final DEF − character base</small></div><div class="breakdown-box wide"><span>ARTIFACT CONTRIBUTIONS</span><div class="artifact-contribution-grid">${artifactRows || '<span class="detail-empty">No artifact contribution data available.</span>'}</div></div></div>`;
   modal.querySelector('.detail-talents').innerHTML = c.talents.length ? c.talents.slice(0,3).map((t,i)=>`<div class="detail-stat"><span>${['Normal Attack','Elemental Skill','Elemental Burst'][i]}</span><b>Lv. ${t.level}</b></div>`).join('') : '<p class="detail-empty">No talent data available.</p>';
   modal.querySelector('.detail-artifacts').innerHTML = c.artifacts.length ? c.artifacts.map(a => `<div class="artifact-detail-card"><div class="artifact-head">${a.icon ? `<img class="artifact-img" src="${escapeHTML(a.icon)}" alt="" loading="lazy" />` : ''}<div><b>${escapeHTML(a.name)}</b><span>${escapeHTML(a.setName)} · ${escapeHTML(a.slot)} · +${a.level}</span></div></div><div class="artifact-main"><span>${escapeHTML(a.mainStat.label)}</span><b>${escapeHTML(a.mainStat.value)}</b></div><div class="artifact-cv"><span>CRIT VALUE</span><b>${artifactCV(a).toFixed(1)}</b></div><div class="artifact-subs">${a.substats?.length ? a.substats.map(sub=>`<div><span>${escapeHTML(sub.label)}</span><b>${escapeHTML(sub.value)}</b></div>`).join('') : '<span class="detail-empty">No substats supplied</span>'}</div></div>`).join('') : '<p class="detail-empty">No artifact data available.</p>';
-  const benchmarkBox=modal.querySelector('#worldBenchmark'); if(benchmarkBox) benchmarkBox.innerHTML='<div class="benchmark-idle">Compare this build against the current world #1 leaderboard build.</div>';
   modal.classList.remove('hidden');
 }
 function closeDetail(){document.querySelector('#detailModal').classList.add('hidden')}
@@ -117,7 +94,6 @@ function renderRoster(filterText){
   });
 }
 async function load(uid){
-  currentUid=uid;
   const roster=document.querySelector('#roster');
   if(!API){if(uid==='863353806'&&window.profileCache){setStatus('SNAPSHOT MODE',false);updateProfile(window.profileCache);render(window.profileCache);return}setStatus('LOCAL PREVIEW',false);roster.innerHTML='<div class="loading">LIVE LOOKUPS NEED THE LOCAL SERVER<br><small style="font:10px Outfit;color:#777;letter-spacing:0">Run <b>npm install</b>, then <b>node server.js</b>, then open http://localhost:4173.</small></div>';return}
   roster.innerHTML='<div class="loading">CONTACTING ENKA ARCHIVE<span></span></div>';
@@ -128,10 +104,6 @@ document.querySelector('#uidForm').addEventListener('submit',e=>{e.preventDefaul
 document.querySelector('#reload').addEventListener('click',()=>{const uid=document.querySelector('#uidInput').value.replace(/\D/g,'');if(uid.length<8)return;load(uid)});
 document.querySelector('#filterInput').addEventListener('input',e=>renderRoster(e.target.value));
 document.querySelector('#detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal'||e.target.closest('.detail-close'))closeDetail()});
-document.querySelector('#compareWorld')?.addEventListener('click',()=>{
-  const c=currentCharacters.find(x=>String(x.id)===String(document.querySelector('#detailModal')?.dataset?.characterId));
-  if(c) loadWorldBenchmark(c);
-});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
 // Do not load a profile automatically; the UID field starts empty.
 /* Teyvat Radio — public YouTube embeds, no account required. */
