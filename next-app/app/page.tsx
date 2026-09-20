@@ -55,7 +55,9 @@ function FrostAmbience() {
     return () => { field.innerHTML=''; };
   }, []);
   return <div className="frost-field" id="frostField" aria-hidden="true" />;
-}\nexport default function Home() {
+}
+
+export default function Home() {
   const [uid, setUid] = useState('863353806');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [status, setStatus] = useState('ENTER UID');
