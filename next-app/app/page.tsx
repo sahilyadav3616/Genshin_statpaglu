@@ -109,17 +109,17 @@ export default function Home() {
           <div className="hero-badge"><span>STATPAGLU</span><strong>BUILD<br/>CHECK</strong><small>01 / LIVE</small></div>
         </div>
       </section>
-      <section className="profile-panel">
-        <div className="profile-identity"><div className="profile-mark">{(profile?.playerInfo.nickname || '?')[0].toUpperCase()}</div><div><span>TRAVELER PROFILE</span><h2>{profile?.playerInfo.nickname || 'Loading profile…'}</h2></div></div>
-        <div className="profile-stats"><div><span>ADVENTURE RANK</span><b>AR {profile?.playerInfo.level || '—'}</b></div><div><span>WORLD LEVEL</span><b>WL {profile?.playerInfo.worldLevel ?? '—'}</b></div><div><span>SPIRAL ABYSS</span><b>{profile?.playerInfo.abyss || '—'}</b></div></div>
-        <div className="profile-meta"><span>{regionByPrefix[String(profile?.uid || uid)[0]] || 'UNKNOWN'}</span><span>UID <b>{profile?.uid || uid}</b></span></div>
-      </section>
+      {profile && <section className="profile-panel">
+        <div className="profile-identity"><div className="profile-mark">{(profile.playerInfo.nickname || '?')[0].toUpperCase()}</div><div><span>TRAVELER PROFILE</span><h2>{profile.playerInfo.nickname || 'Unknown Traveler'}</h2></div></div>
+        <div className="profile-stats"><div><span>ADVENTURE RANK</span><b>AR {profile.playerInfo.level || '—'}</b></div><div><span>WORLD LEVEL</span><b>WL {profile.playerInfo.worldLevel ?? '—'}</b></div><div><span>SPIRAL ABYSS</span><b>{profile.playerInfo.abyss || '—'}</b></div></div>
+        <div className="profile-meta"><span>{regionByPrefix[String(profile.uid)[0]] || 'UNKNOWN'}</span><span>UID <b>{profile.uid}</b></span></div>
+      </section>}
       <section className="collection">
         <div className="section-heading"><div><span className="eyebrow">PUBLIC SHOWCASE</span><h2>Character roster <small>{profile ? `${profile.characters.length} builds` : '— builds'}</small></h2></div><button className="ghost-button" onClick={()=>loadProfile(uid)}>↻ REFRESH</button></div>
         <input className="filter-input" value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filter showcased characters by name…" aria-label="Filter characters" />
         <p className="hint roster-note">Only characters returned by your public Enka showcase are shown.</p>
         <div className="roster">
-          {!profile ? <div className="loading">{status}<span/></div> : !characters.length ? <div className="loading">NO CHARACTERS MATCH “{filter.toUpperCase()}”</div> : characters.map(({c,i},pos)=><CharacterCard key={`${c.id}-${i}`} c={c} index={pos} onOpen={()=>setSelected(i)} />)}
+          {!profile ? <div className="loading roster-empty">ENTER A PUBLIC UID ABOVE TO LOAD A PROFILE</div> : !characters.length ? <div className="loading">NO CHARACTERS MATCH “{filter.toUpperCase()}”</div> : characters.map(({c,i},pos)=><CharacterCard key={`${c.id}-${i}`} c={c} index={pos} onOpen={()=>setSelected(i)} />)}
         </div>
       </section>
       <SupportPanel />
