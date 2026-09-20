@@ -57,3 +57,16 @@ html,body{width:100%;max-width:100%;min-width:0}
   .roster{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(min-width:1200px){.page-shell{width:min(1240px,calc(100% - 64px))}}
+
+
+/* Dynamic Ayaka frost ambience — slow crystalline growth in the open background. */
+.frost-field{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:.9}
+.frost-patch{position:absolute;width:clamp(110px,16vw,240px);height:clamp(90px,13vw,190px);transform:translate(-50%,-50%) scale(.35) rotate(var(--rot));opacity:0;filter:blur(.15px);background:radial-gradient(ellipse at 50% 50%,rgba(190,235,255,.10),rgba(150,210,255,.055) 38%,transparent 72%);mix-blend-mode:screen;animation:frostGrow var(--dur) ease-in-out var(--delay) infinite alternate}
+.frost-patch:before,.frost-patch:after{content:"";position:absolute;inset:8%;background:linear-gradient(120deg,transparent 44%,rgba(208,242,255,.32) 46%,rgba(208,242,255,.06) 49%,transparent 51%),linear-gradient(35deg,transparent 45%,rgba(190,231,255,.22) 47%,transparent 51%);clip-path:polygon(50% 0,57% 35%,88% 18%,68% 48%,100% 55%,64% 61%,78% 94%,51% 68%,24% 100%,35% 64%,0 72%,32% 49%,8% 19%,43% 35%);opacity:.7}
+.frost-patch:after{transform:rotate(58deg) scale(.72);opacity:.45}
+.frost-edge{position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(184,230,255,.14),transparent 68%);filter:blur(18px);animation:frostPulse 7s ease-in-out infinite alternate}
+@keyframes frostGrow{0%{transform:translate(-50%,-50%) scale(.3) rotate(var(--rot));opacity:0}38%{opacity:.32}100%{transform:translate(-50%,-50%) scale(1) rotate(calc(var(--rot) + 7deg));opacity:.78}}
+@keyframes frostPulse{from{opacity:.12;transform:scale(.72)}to{opacity:.32;transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.frost-patch{animation:none;transform:translate(-50%,-50%) scale(.82);opacity:.34}.frost-edge{animation:none;opacity:.2}}
+@media(max-width:600px){.frost-field{opacity:.68}.frost-patch{width:120px;height:95px}}
+.page-shell{position:relative;z-index:1}
