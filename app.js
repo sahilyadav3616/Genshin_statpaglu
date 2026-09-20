@@ -119,15 +119,5 @@ document.querySelector('#ostPrev')?.addEventListener('click',()=>{if(ostPlayer&&
 document.querySelector('#ostNext')?.addEventListener('click',()=>{if(ostPlayer&&ostReady)ostPlayer.nextVideo();});
 
 
-/* Ayaka frost ambience: sparse crystals slowly appear, grow, then fade across background whitespace. */
-(function initFrost(){
-  const field=document.querySelector('#frostField'); if(!field)return;
-  const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const spots=[[8,16], [91,18], [5,52], [94,48], [12,84], [88,82], [48,8], [52,93], [22,39], [79,63], [35,78], [67,27]];
-  spots.forEach(([x,y],i)=>{
-    const p=document.createElement('span'); p.className='frost-patch'; p.style.left=x+'%'; p.style.top=y+'%';
-    p.style.setProperty('--rot',(i*31%70-35)+'deg'); p.style.setProperty('--dur',(12+(i%5)*2)+'s'); p.style.setProperty('--delay',(-i*1.9)+'s'); field.appendChild(p);
-  });
-  [[15,25],[85,38],[25,90],[73,12]].forEach(([x,y],i)=>{const e=document.createElement('span');e.className='frost-edge';e.style.left=x+'%';e.style.top=y+'%';e.style.animationDelay=(-i*2.1)+'s';field.appendChild(e)});
-  if(reduce)field.setAttribute('data-reduced-motion','true');
-})();
+(function initAyakaSnow(){const f=document.querySelector('#frostField');if(!f)return;f.innerHTML='';[[10,18],[89,17],[7,48],[93,50],[15,82],[85,84],[49,9],[51,91],[25,35],[76,64],[32,73],[68,29],[18,60],[83,36]].forEach(([x,y],i)=>{const s=document.createElement('span');s.className='frost-snowflake';s.style.left=x+'%';s.style.top=y+'%';s.style.setProperty('--dur',(8+(i%4)*1.7)+'s');s.style.setProperty('--delay',(-i*.9)+'s');s.innerHTML='<span class="arm"></span><i></i>';f.appendChild(s)})})();
+(function initTheme(){const b=document.querySelector('#themeToggle');if(!b)return;if(localStorage.getItem('statpaglu-theme')==='light')document.body.classList.add('light-mode');const sync=()=>b.textContent=document.body.classList.contains('light-mode')?'☾ DARK':'☼ LIGHT';sync();b.onclick=()=>{document.body.classList.toggle('light-mode');localStorage.setItem('statpaglu-theme',document.body.classList.contains('light-mode')?'light':'dark');sync()}})();
