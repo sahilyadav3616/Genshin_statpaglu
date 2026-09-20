@@ -1,5 +1,22 @@
 const API = location.protocol === 'file:' ? null : '/api/profile/';
 const accents = ['#a88cff','#76d9ff','#e987ff','#f6b36a','#6bdcc5','#ffd76e'];
+const UPI_ID = 'sahilyadav3616.1@oksbi';
+function initUpiSupport(){
+  const copyButton=document.querySelector('[data-copy-upi]');
+  const status=document.querySelector('#upiFallback');
+  if(!copyButton) return;
+  copyButton.addEventListener('click',async()=>{
+    try{
+      await navigator.clipboard.writeText(UPI_ID);
+      copyButton.textContent='COPIED ✓';
+      if(status) status.textContent='UPI ID copied. Open your payment app and paste it.';
+      setTimeout(()=>{copyButton.textContent='COPY UPI ID'; if(status) status.textContent='If the UPI app does not open, copy the UPI ID and pay from your preferred app.'},2200);
+    }catch{
+      if(status) status.textContent='Copy failed. Use this UPI ID manually: '+UPI_ID;
+    }
+  });
+}
+
 const priorityLabels = ['CRIT Rate','CRIT DMG','ATK','Elemental Mastery','Energy Recharge','HP','DEF'];
 const regionByPrefix = {'1':'CN','2':'CN','3':'CN','5':'CN','6':'NA','7':'EU','8':'ASIA','9':'TW / HK / MO'};
 let currentCharacters = [];
@@ -125,6 +142,7 @@ document.querySelector('#ostNext')?.addEventListener('click',()=>{if(ostPlayer&&
 (function initTheme(){const b=document.querySelector('#themeToggle');if(!b)return;if(localStorage.getItem('statpaglu-theme')==='light')document.body.classList.add('light-mode');const sync=()=>{const light=document.body.classList.contains('light-mode');b.innerHTML=light?'☀ <span>LIGHT</span>':'☾ <span>DARK</span>';b.setAttribute('aria-pressed',String(light));b.setAttribute('aria-label',light?'Switch to dark mode':'Switch to light mode')};sync();b.onclick=()=>{document.body.classList.toggle('light-mode');localStorage.setItem('statpaglu-theme',document.body.classList.contains('light-mode')?'light':'dark');sync()}})();
 // Do not auto-load any UID on startup. The UID input must remain empty until the user submits one.
 window.addEventListener('load',()=>{
+  initUpiSupport();
   const uidInput=document.querySelector('#uidInput');
   if(uidInput){uidInput.value=''; uidInput.focus();}
 });
