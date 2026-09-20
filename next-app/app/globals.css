@@ -36,6 +36,7 @@ button{touch-action:manipulation}
 .uid-form input::placeholder,.filter-input::placeholder{color:#626d81}
 .uid-form input:focus,.filter-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(169,154,255,.10)}
 .uid-form button,.upi-button{min-height:48px;border:0;border-radius:12px;background:var(--accent-2);color:#092019;padding:0 18px;cursor:pointer;font:700 10px 'DM Mono';letter-spacing:.7px;transition:.18s ease}
+.upi-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}.upi-copy{min-height:48px;border:1px solid var(--line-strong);border-radius:12px;background:rgba(255,255,255,.035);color:var(--ink);padding:0 16px;cursor:pointer;font:700 10px 'DM Mono';letter-spacing:.7px}.upi-copy:hover{border-color:var(--accent-2);color:var(--accent-2)}.upi-fallback{display:block;margin-top:10px;color:var(--subtle);font:9px 'DM Mono';line-height:1.5}
 .uid-form button:hover,.upi-button:hover{transform:translateY(-1px);filter:brightness(1.04)}
 .uid-form button span{font-size:16px;margin-left:6px}
 .hint{font:10px 'DM Mono'!important;color:var(--subtle)!important;margin:9px 0!important}
