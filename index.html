@@ -14,7 +14,10 @@
     <main class="shell">
       <nav class="topbar">
         <a class="brand" href="#top" aria-label="Genshin StatPaglu home"><i></i>GENSHIN <span>STATPAGLU</span></a>
-        <div class="nav-status" id="dataStatus"><b></b> ENKA LIVE DATA</div>
+        <div class="nav-actions">
+          <div class="nav-status" id="dataStatus"><b></b> ENKA LIVE DATA</div>
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle light and dark mode">☼ LIGHT</button>
+        </div>
         <a class="source-link" id="sourceLink" href="#" target="_blank" rel="noreferrer">VIEW ON ENKA ↗</a>
       </nav>
       <section class="hero" id="top">
@@ -42,6 +45,12 @@
         <input id="filterInput" class="filter-input" type="text" placeholder="Filter showcased characters by name…" aria-label="Filter characters" />
         <p class="hint" style="margin:8px 0 22px!important">Only characters returned by your public Enka showcase are shown. Those are owned characters visible to Enka; the service cannot expose hidden/non-showcased characters.</p>
         <div class="roster" id="roster"><div class="loading">CONTACTING ENKA ARCHIVE<span></span></div></div>
+      </section>
+      <section class="support-panel">
+        <span class="eyebrow">SUPPORT THE PROJECT</span>
+        <p>If StatPaglu helped you, you can support development.</p>
+        <div class="upi-id">UPI: <b>sahilyadav3616.1@oksbi</b></div>
+        <a class="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ SUPPORT VIA UPI</a>
       </section>
     </main>
     <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
