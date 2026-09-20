@@ -85,3 +85,10 @@ body.light-mode .theme-toggle{border-color:#c7cad7;color:#33384a;background:rgba
 .theme-toggle:before{content:"";width:25px;height:25px;border-radius:50%;background:#1a1d2b;box-shadow:0 2px 7px rgba(0,0,0,.35);position:absolute;left:3px;transition:.2s ease}.theme-toggle span{position:relative;z-index:1;margin-left:24px;letter-spacing:.4px}.theme-toggle:hover{border-color:var(--mint);transform:translateY(-1px)}
 body.light-mode .theme-toggle{background:#e8ebf4;border-color:#c7cad7;color:#33384a}body.light-mode .theme-toggle:before{left:calc(100% - 28px);background:#fff3a6;box-shadow:0 2px 8px rgba(120,100,0,.22)}body.light-mode .theme-toggle span{margin-left:0;margin-right:24px}
 @media(max-width:600px){.theme-toggle{min-width:68px;height:32px}.theme-toggle span{font-size:9px}}
+
+
+/* Supplied Ayaka crystalline ground glyph. */
+.frost-snowflake{width:clamp(82px,10vw,150px);height:clamp(82px,10vw,150px);background:url('/ayaka-snowflake.png') center/contain no-repeat;transform:translate(-50%,-50%) scale(.18);opacity:0;animation:snowflakeAssetBloom var(--dur) ease-in-out var(--delay) infinite;filter:drop-shadow(0 0 7px rgba(168,225,255,.28));}
+.frost-snowflake:before,.frost-snowflake:after,.frost-snowflake .arm,.frost-snowflake i{display:none!important;}
+@keyframes snowflakeAssetBloom{0%{opacity:0;transform:translate(-50%,-50%) scale(.18) rotate(-12deg)}22%{opacity:.76}55%{opacity:.9;transform:translate(-50%,-50%) scale(1) rotate(16deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.08) rotate(34deg)}}
+@media(prefers-reduced-motion:reduce){.frost-snowflake{animation:none;transform:translate(-50%,-50%) scale(.82);opacity:.3}}
