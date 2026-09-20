@@ -12,12 +12,14 @@ const files = new Map([
   ['/index.html', 'index.html'],
   ['/styles.css', 'styles.css'],
   ['/app.js', 'app.js'],
-  ['/profile-cache.js', 'profile-cache.js']
+  ['/profile-cache.js', 'profile-cache.js'],
+  ['/ayaka-snowflake.png', 'ayaka-snowflake.png']
 ]);
 const types = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8'
+  '.js': 'application/javascript; charset=utf-8',
+  '.png': 'image/png'
 };
 
 function send(res, status, body, type = 'application/json; charset=utf-8') {
@@ -469,19 +471,29 @@ function characterImageFromMetadata(c) {
 
 function talentRows(raw, meta) {
   const levels = raw?.skillLevelMap || {};
-  const fallback = Object.values(levels).slice(0, 3);
+  const entries = Object.keys(levels).map(key => ({
+    key,
+    id: Number(key),
+    level: Number(levels[key])
+  })).filter(x => Number.isFinite(x.level) && x.level > 0);
+
+  // Enka's skillLevelMap is keyed by the actual skill ID. Never use object
+  // insertion order here: Ayaka, for example, can expose 10521/10522/10525
+  // (Normal/Skill/Burst), while the first map entry is not guaranteed to be
+  // Normal Attack. Prefer an explicit metadata id when the wrapper supplies
+  // one, then use the stable Genshin combat-skill suffixes as a raw fallback.
   const definitions = [
-    ['Normal Attack', meta?.skills?.normalAttacks],
-    ['Elemental Skill', meta?.skills?.elementalSkill],
-    ['Elemental Burst', meta?.skills?.elementalBurst]
+    ['Normal Attack', meta?.skills?.normalAttack ?? meta?.skills?.normalAttacks, 1],
+    ['Elemental Skill', meta?.skills?.elementalSkill, 2],
+    ['Elemental Burst', meta?.skills?.elementalBurst, 5]
   ];
-  return definitions.map(([name, skill], i) => {
-    // Enka's wrapper resolves each combat talent through the character's
-    // skillOrder. This matters for characters such as Ayaka where the raw
-    // skillLevelMap key order is not safe to interpret as Normal/Skill/Burst.
-    const id = skill?.id;
-    const rawLevel = id != null ? (levels[String(id)] ?? levels[id]) : undefined;
-    const level = Number(rawLevel ?? skill?.level ?? fallback[i] ?? 1);
+
+  return definitions.map(([name, skill, suffix]) => {
+    const explicitId = typeof skill === 'object' && skill?.id != null ? Number(skill.id) : NaN;
+    const candidate = Number.isFinite(explicitId)
+      ? entries.find(x => x.id === explicitId)
+      : entries.find(x => Math.abs(x.id) % 10 === suffix);
+    const level = Number(candidate?.level ?? (typeof skill === 'object' ? skill?.level : undefined) ?? 1);
     return { name, level: Number.isFinite(level) && level > 0 ? level : 1 };
   });
 }
