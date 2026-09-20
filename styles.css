@@ -58,8 +58,8 @@ button{touch-action:manipulation}
 .build-card{position:relative;overflow:hidden;min-height:410px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(155deg,rgba(29,35,50,.96),rgba(14,18,27,.98));padding:17px;isolation:isolate;cursor:pointer;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
 .build-card:hover{transform:translateY(-4px);border-color:rgba(169,154,255,.5);box-shadow:0 18px 55px rgba(0,0,0,.25)}
 .card-glow{position:absolute;z-index:-1;width:240px;height:240px;right:-80px;top:-90px;background:var(--accent,#9b88ff);border-radius:50%;filter:blur(75px);opacity:.2}
-.char-image{position:absolute;top:0;left:0;width:100%;height:245px;object-fit:cover;object-position:top center;z-index:0;opacity:.46;mask-image:linear-gradient(#000 20%,transparent 100%);-webkit-mask-image:linear-gradient(#000 20%,transparent 100%);transition:.3s}
-.build-card:hover .char-image{opacity:.68;transform:scale(1.035)}
+.char-image{position:absolute;top:0;left:0;width:100%;height:245px;object-fit:cover;object-position:top center;z-index:0;opacity:.72;mask-image:linear-gradient(#000 20%,transparent 100%);-webkit-mask-image:linear-gradient(#000 20%,transparent 100%);transition:.3s}
+.build-card:hover .char-image{opacity:.92;transform:scale(1.035)}
 .portrait{height:125px;display:grid;place-items:center;position:relative}.initial{font-size:92px;font-weight:800;color:#ffffff1d;text-shadow:0 0 34px var(--accent)}
 .card-top,.card-bottom{position:relative;z-index:1;display:flex;justify-content:space-between;font:9px 'DM Mono';letter-spacing:.7px;color:#aeb7c9}.rarity{color:#f1d18b;letter-spacing:0}
 .character-title{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:end;margin-top:108px}.character-title p,.equipment p{font:9px 'DM Mono';letter-spacing:.9px;color:#8994a9;margin:0 0 3px}.character-title h3{font-size:25px;letter-spacing:-.8px;margin:0;background:linear-gradient(90deg,#fff,#d8d0ff 65%,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}.level{font:10px 'DM Mono';color:var(--accent-2);padding-bottom:4px}
