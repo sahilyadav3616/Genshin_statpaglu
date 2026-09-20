@@ -64,7 +64,7 @@ function FrostAmbience() {\n  useEffect(() => {\n    const field = document.quer
       setStatus((error as Error).message.toUpperCase()); setLive(false);
     }
   }
-  useEffect(() => {}, []);
+  useEffect(()=>{const b=document.querySelector('#themeToggle');if(!b)return;if(localStorage.getItem('statpaglu-theme')==='light')document.body.classList.add('light-mode');const sync=()=>b.textContent=document.body.classList.contains('light-mode')?'☾ DARK':'☼ LIGHT';sync();b.addEventListener('click',()=>{document.body.classList.toggle('light-mode');localStorage.setItem('statpaglu-theme',document.body.classList.contains('light-mode')?'light':'dark');sync()})},[]);
   const characters = useMemo(() => {
     const needle = filter.trim().toLowerCase();
     return (profile?.characters || []).map((c,i)=>({c,i})).filter(({c})=>!needle || c.name.toLowerCase().includes(needle));
@@ -76,7 +76,7 @@ function FrostAmbience() {\n  useEffect(() => {\n    const field = document.quer
       <div className="ambient ambient-a"/><div className="ambient ambient-b"/>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="Genshin StatPaglu home"><span className="brand-mark">SP</span><span>GENSHIN <b>STATPAGLU</b></span></a>
-        <div className="nav-status"><i className={live ? 'online' : 'offline'} /> {status}</div>
+        <div className="nav-actions"><div className="nav-status"><i className={live ? 'online' : 'offline'} /> {status}</div><button id="themeToggle" className="theme-toggle" type="button">☼ LIGHT</button></div>
         <a className="source-link" href={profile?.uid ? `https://enka.network/u/${profile.uid}/` : '#'} target="_blank" rel="noreferrer">ENKA PROFILE ↗</a>
       </header>
       <section className="hero" id="top">
@@ -108,6 +108,7 @@ function FrostAmbience() {\n  useEffect(() => {\n    const field = document.quer
           {!profile ? <div className="loading">{status}<span/></div> : !characters.length ? <div className="loading">NO CHARACTERS MATCH “{filter.toUpperCase()}”</div> : characters.map(({c,i},pos)=><CharacterCard key={`${c.id}-${i}`} c={c} index={pos} onOpen={()=>setSelected(i)} />)}
         </div>
       </section>
+      <section className="support-panel"><span className="eyebrow">SUPPORT THE PROJECT</span><p>If StatPaglu helped you, you can support development.</p><a className="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ SUPPORT VIA UPI</a></section>
       <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
       {selectedCharacter && <DetailModal character={selectedCharacter} onClose={()=>setSelected(null)} />}
     </main>
