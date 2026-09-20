@@ -110,21 +110,21 @@ function weapon(raw,meta={}){
 function image(meta={}){
   return [meta.characterData?.icons?.gacha?.url,meta.characterData?.gachaSplashImage?.url,meta.characterData?.splashImage?.url,meta.icons?.gacha?.url,meta.icons?.card?.url,meta.icon?.url,typeof meta.characterData?.icons?.gacha==='string'?meta.characterData.icons.gacha:null,typeof meta.icons?.gacha==='string'?meta.icons.gacha:null].filter(Boolean)[0]||null;
 }
-function talents(raw,meta={}){
+function talents(raw,meta={}) {
   const levels=raw?.skillLevelMap||{};
-  const fallback=Object.values(levels).slice(0,3);
+  const entries=Object.keys(levels).map(key=>({key,id:Number(key),level:Number(levels[key])})).filter(x=>Number.isFinite(x.level)&&x.level>0);
+  // skillLevelMap is keyed by actual skill IDs; object order is not the
+  // Normal/Skill/Burst order. Prefer wrapper ids, then the stable combat-skill
+  // suffixes (1/2/5) used by Genshin's Normal/Skill/Burst skill IDs.
   const definitions=[
-    ['Normal Attack',meta?.skills?.normalAttacks],
-    ['Elemental Skill',meta?.skills?.elementalSkill],
-    ['Elemental Burst',meta?.skills?.elementalBurst]
+    ['Normal Attack',meta?.skills?.normalAttack??meta?.skills?.normalAttacks,1],
+    ['Elemental Skill',meta?.skills?.elementalSkill,2],
+    ['Elemental Burst',meta?.skills?.elementalBurst,5]
   ];
-  return definitions.map(([name,skill],i)=>{
-    // Enka's wrapper resolves each combat talent through the character's
-    // skillOrder. This matters for characters such as Ayaka where the raw
-    // skillLevelMap key order is not safe to interpret as Normal/Skill/Burst.
-    const id=skill?.id;
-    const rawLevel=id!=null?(levels[String(id)]??levels[id]):undefined;
-    const level=Number(rawLevel??skill?.level??fallback[i]??1);
+  return definitions.map(([name,skill,suffix])=>{
+    const explicitId=typeof skill==='object'&&skill?.id!=null?Number(skill.id):NaN;
+    const candidate=Number.isFinite(explicitId)?entries.find(x=>x.id===explicitId):entries.find(x=>Math.abs(x.id)%10===suffix);
+    const level=Number(candidate?.level??(typeof skill==='object'?skill?.level:undefined)??1);
     return {name,level:Number.isFinite(level)&&level>0?level:1};
   });
 }
