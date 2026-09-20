@@ -479,22 +479,45 @@ function talentRows(raw, meta) {
     level: Number(levels[key])
   })).filter(x => Number.isFinite(x.level) && x.level > 0);
 
-  // Enka's skillLevelMap is keyed by the actual skill ID. Never use object
-  // insertion order here: Ayaka, for example, can expose IDs such as 10261/10262/10265
-  // (Normal/Skill/Burst), while the first map entry is not guaranteed to be
-  // Normal Attack. Prefer an explicit metadata id when the wrapper supplies
-  // one, then use the stable Genshin combat-skill suffixes as a raw fallback.
+  // Enka documents skillLevelMap as { skill_id: level }. Resolve by the
+  // actual skill ID first. If wrapper metadata uses a different ID namespace,
+  // fall back to the Genshin active-skill ID suffixes: 1=Normal, 2=Skill, 5=Burst.
+  // Only use a positional fallback when the raw map cannot be classified,
+  // so we never turn a valid 9/8/10 map into 1/1/1.
   const definitions = [
-    ['Normal Attack', meta?.skills?.normalAttack ?? meta?.skills?.normalAttacks, 1],
-    ['Elemental Skill', meta?.skills?.elementalSkill, 2],
-    ['Elemental Burst', meta?.skills?.elementalBurst, 5]
+    ['Normal Attack', meta?.skills?.normalAttack ?? meta?.skills?.normalAttacks, 1, 0],
+    ['Elemental Skill', meta?.skills?.elementalSkill, 2, 1],
+    ['Elemental Burst', meta?.skills?.elementalBurst, 5, 2]
   ];
 
-  return definitions.map(([name, skill, suffix]) => {
-    const explicitId = typeof skill === 'object' && skill?.id != null ? Number(skill.id) : NaN;
-    const candidate = (Number.isFinite(explicitId) ? entries.find(x => x.id === explicitId) : null)
-      || entries.find(x => Math.abs(x.id) % 10 === suffix);
-    const level = Number(candidate?.level ?? (typeof skill === 'object' ? skill?.level : undefined) ?? 1);
+  return definitions.map(([name, skill, suffix, fallbackIndex]) => {
+    const explicitIds = [];
+    if (skill && typeof skill === 'object') {
+      for (const key of ['id', 'skillId', 'skillID', 'rawId', 'apiId']) {
+        const n = Number(skill[key]);
+        if (Number.isFinite(n)) explicitIds.push(n);
+      }
+    }
+
+    let candidate = null;
+    for (const id of explicitIds) {
+      candidate = entries.find(x => x.id === id);
+      if (candidate) break;
+    }
+
+    candidate ||= entries.find(x => Math.abs(x.id) % 10 === suffix);
+
+    if (!candidate) {
+      const active = entries
+        .filter(x => [1, 2, 5].includes(Math.abs(x.id) % 10))
+        .sort((a, b) => (Math.abs(a.id) % 10) - (Math.abs(b.id) % 10));
+      candidate = active.find(x => Math.abs(x.id) % 10 === suffix) || active[fallbackIndex] || null;
+    }
+
+    if (!candidate && entries.length === 3) candidate = entries[fallbackIndex];
+
+    const wrapperLevel = skill && typeof skill === 'object' ? Number(skill.level) : NaN;
+    const level = Number(candidate?.level ?? (Number.isFinite(wrapperLevel) ? wrapperLevel : 1));
     return { name, level: Number.isFinite(level) && level > 0 ? level : 1 };
   });
 }
