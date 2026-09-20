@@ -114,26 +114,45 @@ function talents(raw,meta={}) {
   const levels=raw?.skillLevelMap||{};
   const entries=Object.keys(levels).map(key=>({key,id:Number(key),level:Number(levels[key])})).filter(x=>Number.isFinite(x.level)&&x.level>0);
 
-  // Enka documents skillLevelMap as { skill_id: level }. Resolve by actual
-  // skill ID first; then use the active-skill suffixes 1/2/5; only then use
-  // a positional fallback when the raw map has no classifiable IDs.
+  // Enka's skillLevelMap is { skill_id: level }. Genshin data can expose
+  // character-data skill IDs separately from showcase/raw skill IDs.
+  // Ayaka (avatar 10000002):
+  // Normal = 10024 / raw 10261
+  // Skill  = 10018 / raw 10262
+  // Burst  = 10019 / raw 10265
+  const avatarId=Number(raw?.avatarId||meta?.id||meta?.avatarId||0);
+  const aliases={
+    10000002:{
+      normal:[10024,10261],
+      skill:[10018,10262],
+      burst:[10019,10265]
+    }
+  };
+
+  const skillMeta=meta?.skills||meta?.characterData?.skills||{};
   const definitions=[
-    ['Normal Attack',meta?.skills?.normalAttack??meta?.skills?.normalAttacks,1,0],
-    ['Elemental Skill',meta?.skills?.elementalSkill,2,1],
-    ['Elemental Burst',meta?.skills?.elementalBurst,5,2]
+    ['Normal Attack',skillMeta?.normalAttack??skillMeta?.normalAttacks,'normal',1,0],
+    ['Elemental Skill',skillMeta?.elementalSkill,'skill',2,1],
+    ['Elemental Burst',skillMeta?.elementalBurst,'burst',5,2]
   ];
 
-  return definitions.map(([name,skill,suffix,fallbackIndex])=>{
-    const explicitIds=[];
+  return definitions.map(([name,skill,aliasKey,suffix,fallbackIndex])=>{
+    const ids=[...(aliases[avatarId]?.[aliasKey]||[])];
+
     if(skill&&typeof skill==='object'){
       for(const key of ['id','skillId','skillID','rawId','apiId']){
-        const n=Number(skill[key]); if(Number.isFinite(n)) explicitIds.push(n);
+        const n=Number(skill[key]);
+        if(Number.isFinite(n)&&!ids.includes(n))ids.push(n);
       }
     }
 
     let candidate=null;
-    for(const id of explicitIds){candidate=entries.find(x=>x.id===id);if(candidate)break}
-    candidate ||= entries.find(x=>Math.abs(x.id)%10===suffix);
+    for(const id of ids){
+      candidate=entries.find(x=>x.id===id);
+      if(candidate)break;
+    }
+
+    if(!candidate)candidate=entries.find(x=>Math.abs(x.id)%10===suffix);
 
     if(!candidate){
       const active=entries.filter(x=>[1,2,5].includes(Math.abs(x.id)%10))
@@ -141,27 +160,10 @@ function talents(raw,meta={}) {
       candidate=active.find(x=>Math.abs(x.id)%10===suffix)||active[fallbackIndex]||null;
     }
 
-    if(!candidate&&entries.length===3) candidate=entries[fallbackIndex];
+    if(!candidate&&entries.length===3)candidate=entries[fallbackIndex];
 
     const wrapperLevel=skill&&typeof skill==='object'?Number(skill.level):NaN;
     const level=Number(candidate?.level??(Number.isFinite(wrapperLevel)?wrapperLevel:1));
-    return {name,level:Number.isFinite(level)&&level>0?level:1};
-  });
-}) {
-  const levels=raw?.skillLevelMap||{};
-  const entries=Object.keys(levels).map(key=>({key,id:Number(key),level:Number(levels[key])})).filter(x=>Number.isFinite(x.level)&&x.level>0);
-  // skillLevelMap is keyed by actual skill IDs; object order is not the
-  // Normal/Skill/Burst order. Prefer wrapper ids, then the stable combat-skill
-  // suffixes (1/2/5) used by Genshin's Normal/Skill/Burst skill IDs.
-  const definitions=[
-    ['Normal Attack',meta?.skills?.normalAttack??meta?.skills?.normalAttacks,1],
-    ['Elemental Skill',meta?.skills?.elementalSkill,2],
-    ['Elemental Burst',meta?.skills?.elementalBurst,5]
-  ];
-  return definitions.map(([name,skill,suffix])=>{
-    const explicitId=typeof skill==='object'&&skill?.id!=null?Number(skill.id):NaN;
-    const candidate=(Number.isFinite(explicitId)?entries.find(x=>x.id===explicitId):null)||entries.find(x=>Math.abs(x.id)%10===suffix);
-    const level=Number(candidate?.level??(typeof skill==='object'?skill?.level:undefined)??1);
     return {name,level:Number.isFinite(level)&&level>0?level:1};
   });
 }
