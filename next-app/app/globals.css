@@ -78,3 +78,11 @@ body.light-mode .aurora{opacity:.06}body.light-mode .hero>p{color:#5f687b}body.l
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.build-card,.uid-form button,.ghost-button,.theme-toggle{transition:none}.frost-snowflake{animation:none;transform:translate(-50%,-50%) scale(.75);opacity:.18}}
 @media(max-width:900px){.roster{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-panel{gap:18px}.profile-stats{gap:18px}.profile-meta{display:none}}
 @media(max-width:620px){.shell{width:calc(100% - 24px)}.topbar{height:68px}.nav-status,.source-link{display:none}.hero{padding:62px 0 46px}.hero h1{letter-spacing:-2.5px}.hero>p{font-size:15px}.uid-form{width:100%}.uid-form input{width:100%;min-width:0}.uid-form button{white-space:nowrap}.profile-panel{align-items:flex-start;flex-direction:column;padding:17px;gap:16px}.profile-stats{width:100%;justify-content:space-between}.profile-stats b{font-size:14px}.collection{padding:52px 0}.section-heading{align-items:center}.section-heading h2{font-size:26px}.roster{grid-template-columns:1fr}.build-card{min-height:400px}.key-stats{grid-template-columns:repeat(2,1fr)}.detail-grid,.breakdown-grid,.artifact-contribution-grid{grid-template-columns:1fr}.breakdown-box.wide{grid-column:auto}.modal{padding:10px}.modal-content{padding:23px}.ost-player{padding:12px}.ost-copy strong{max-width:55vw}}
+
+/* Next.js hero composition */
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:48px;align-items:center}
+.hero-badge{width:200px;height:200px;border:1px solid var(--line-strong);border-radius:28px;background:linear-gradient(145deg,rgba(169,154,255,.14),rgba(142,232,208,.05));backdrop-filter:blur(18px);display:flex;flex-direction:column;justify-content:space-between;padding:22px;box-shadow:var(--shadow);transform:rotate(3deg)}
+.hero-badge span,.hero-badge small{font:9px 'DM Mono';letter-spacing:1.2px;color:var(--muted)}
+.hero-badge strong{font-size:31px;line-height:.92;letter-spacing:-1.5px;background:linear-gradient(135deg,var(--ink),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+body.light-mode .hero-badge{background:linear-gradient(145deg,rgba(102,85,217,.08),rgba(8,123,97,.05));box-shadow:0 14px 45px rgba(40,50,80,.08)}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.hero-badge{display:none}}
