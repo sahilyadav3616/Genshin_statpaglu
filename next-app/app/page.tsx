@@ -157,6 +157,94 @@ function OstPlayer() {
   return <section className="ost-player" aria-label="Genshin Impact OST player"><div className="ost-copy"><span className="eyebrow">TEYVAT RADIO</span><strong>{title}</strong><small>{playing?'NOW PLAYING · HOYO-MIX':'PRESS PLAY · HOYO-MIX'}</small></div><div className="ost-controls"><button type="button" aria-label="Previous track" onClick={()=>playerRef.current?.previousVideo()}>‹</button><button type="button" aria-label="Play or pause" onClick={toggle}>{playing?'Ⅱ':'▶'}</button><button type="button" aria-label="Next track" onClick={()=>playerRef.current?.nextVideo()}>›</button></div><div className="ost-video" aria-hidden="true"><div id="ostYoutube"/></div></section>;
 }
 
+type AdvisorProfile = {
+  archetype: string; summary: string; sets: string[]; sands: string; goblet: string; circlet: string;
+  substats: string[]; targets: Array<{ label: string; target: string }>; weapons: string[];
+  teams: Array<{ name: string; members: string[]; why: string }>; talentPriority: string;
+};
+
+const BUILD_ADVISOR: Record<string, AdvisorProfile> = {
+  Ayaka: {
+    archetype: 'Cryo Burst DPS / Freeze',
+    summary: 'Prioritize Burst uptime, CRIT consistency and ATK. Freeze teams can inflate effective CRIT Rate, so do not blindly chase 70%+ sheet CRIT.',
+    sets: ['4pc Blizzard Strayer', '4pc Marechaussee Hunter with Furina + healer', '2pc Cryo / ATK / ER mix'],
+    sands: 'ATK%', goblet: 'Cryo DMG Bonus > ATK%', circlet: 'CRIT Rate or CRIT DMG',
+    substats: ['ER until rotation target', 'CRIT', 'ATK%', 'Flat ATK'],
+    targets: [{label:'ER',target:'≈130–150% in common 2-Cryo teams'}, {label:'CRIT',target:'Balance around team/set bonuses'}, {label:'ATK',target:'Stack after ER / CRIT needs'}],
+    weapons: ['Mistsplitter Reforged', 'Azurelight', 'Absolution', 'Uraku Misugiri', 'Finale of the Deep', 'Amenoma Kageuchi'],
+    teams: [
+      {name:'Freeze core',members:['Ayaka','Hydro','Cryo / Support','Anemo / Flex'],why:'Hydro enables Freeze; Cryo improves energy and buffs; Anemo grouping helps Ayaka Burst connect.'},
+      {name:'Furina Freeze',members:['Ayaka','Furina','Escoffier','Shenhe / Rosaria'],why:'Furina supplies DMG Bonus while a healer enables her Fanfare and can make Marechaussee Hunter practical.'}
+    ],
+    talentPriority: 'Normal Attack ≥ Burst > Skill'
+  },
+  Neuvillette: {
+    archetype: 'Hydro Charged Attack DPS',
+    summary: 'HP scaling makes HP% unusually valuable. Meet Burst/rotation ER needs, then balance CRIT and HP; Hydro or HP Goblet can both be valid.',
+    sets: ['4pc Marechaussee Hunter', '4pc Heart of Depth', '2pc HP / Hydro mix'],
+    sands: 'HP%', goblet: 'Hydro DMG Bonus or HP%', circlet: 'CRIT Rate / CRIT DMG / HP%',
+    substats: ['ER until rotation target', 'CRIT', 'HP%', 'Flat HP'],
+    targets: [{label:'ER',target:'Common solo Hydro ≈115–135%; lower with Hydro/Fav support'}, {label:'CRIT',target:'Prioritize balanced CRIT'}, {label:'HP',target:'High HP after ER / CRIT needs'}],
+    weapons: ['Tome of the Eternal Flow', 'Sacrificial Jade', 'Surf’s Up', 'Nocturne’s Curtain Call', 'Lost Prayer to the Sacred Winds', 'Ash-Graven Drinking Horn'],
+    teams: [
+      {name:'Hypercarry',members:['Neuvillette','Furina','Kazuha / Xilonen','Defensive / Offensive Flex'],why:'Buffs Neuvillette while preserving field time and Hydro uptime.'},
+      {name:'Reaction shell',members:['Neuvillette','Xiangling','Xilonen','Kazuha / Sucrose'],why:'Multiple elements help his A1 while Pyro and RES shred add reaction and personal damage.'}
+    ],
+    talentPriority: 'Normal Attack ≫ Skill / Burst'
+  }
+};
+
+function statNumber(c: Character, label: string) {
+  const s=c.stats.find(x=>x.label.toLowerCase()===label.toLowerCase());
+  return s ? num(s.rawValue ?? String(s.value).replace(/[^0-9.+-]/g,'')) : 0;
+}
+function findAdvisor(c: Character): AdvisorProfile {
+  if(BUILD_ADVISOR[c.name]) return BUILD_ADVISOR[c.name];
+  const cryo=c.stats.some(s=>s.label.includes('Cryo DMG'));
+  const hydro=c.stats.some(s=>s.label.includes('Hydro DMG'));
+  if(cryo) return BUILD_ADVISOR.Ayaka;
+  if(hydro) return BUILD_ADVISOR.Neuvillette;
+  return {
+    archetype:'Flexible DPS / Support',
+    summary:'Use the role-aware defaults as a starting point. Exact recommendations should be refined from the character kit, constellations and rotation.',
+    sets:['Character-specific 4pc set','2pc + 2pc stat-efficient mix'],
+    sands:'Match the character’s scaling',goblet:'Elemental DMG Bonus or scaling stat',circlet:'CRIT / healing / scaling stat as appropriate',
+    substats:['ER until rotation target','CRIT','Relevant scaling stat','ATK% / HP% / DEF% as applicable'],
+    targets:[{label:'ER',target:'Enough to Burst every planned rotation'},{label:'CRIT',target:'Balance CRIT Rate and CRIT DMG'},{label:'Main',target:'Prioritize the stat that scales the kit'}],
+    weapons:c.weapon?[c.weapon.name,'Signature / strongest 5★ option','Best craftable / F2P option','Favonius or utility alternative']:['Signature / strongest 5★ option','Best craftable / F2P option','Favonius or utility alternative'],
+    teams:[{name:'Role shell',members:[c.name,'Buffer','Off-field DPS / Enabler','Defensive / Utility'],why:'Build around field-time, energy economy and reaction/elemental requirements.'}],
+    talentPriority:'Prioritize the talent that contributes most to the character’s main damage or utility.'
+  };
+}
+function evaluateAdvisor(c: Character, a: AdvisorProfile) {
+  const er=statNumber(c,'Energy Recharge'),cr=statNumber(c,'CRIT Rate'),cd=statNumber(c,'CRIT DMG');
+  const findings:string[]=[];
+  if(c.level<90) findings.push('Character is below Lv. 90; finishing levels may be a cleaner upgrade than tiny artifact gains.');
+  if(c.weapon && c.weapon.level<90) findings.push('Weapon is below Lv. 90; finish weapon leveling before chasing tiny artifact upgrades.');
+  if(c.talents?.[0] && c.talents[0].level<9) findings.push('Normal Attack is below Lv. 9; verify whether it drives the character’s main damage.');
+  if(c.talents?.[1] && c.talents[1].level<9 && /Skill/.test(a.talentPriority)) findings.push('Elemental Skill is below Lv. 9 within the current talent plan.');
+  if(c.talents?.[2] && c.talents[2].level<9 && /Burst/.test(a.talentPriority)) findings.push('Elemental Burst is below Lv. 9 within the current talent plan.');
+  if(er) findings.push('Current ER is '+er.toFixed(1)+'%; compare it to the team rotation target rather than a universal number.');
+  if(cr && cd) findings.push('Current CRIT is '+cr.toFixed(1)+' / '+cd.toFixed(1)+'; improve the weaker side of the ratio instead of tunnel-visioning one stat.');
+  if(!findings.length) findings.push('No obvious low-hanging upgrade is visible from the available showcase data.');
+  return findings;
+}
+function AdvisorSection({character:c}:{character:Character}) {
+  const a=findAdvisor(c), findings=evaluateAdvisor(c,a);
+  return <section className="advisor-section">
+    <div className="advisor-kicker"><span className="eyebrow">BUILD & TEAM ADVISOR</span><span className="advisor-archetype">{a.archetype}</span></div>
+    <p className="advisor-summary">{a.summary}</p>
+    <div className="advisor-tabs-grid">
+      <div className="advisor-card"><span className="advisor-label">TARGET STATS</span>{a.targets.map(x=><div className="advisor-row" key={x.label}><b>{x.label}</b><span>{x.target}</span></div>)}</div>
+      <div className="advisor-card"><span className="advisor-label">ARTIFACTS</span><div className="advisor-mainstats"><b>Sands <span>{a.sands}</span></b><b>Goblet <span>{a.goblet}</span></b><b>Circlet <span>{a.circlet}</span></b></div><p className="advisor-subline">{a.substats.join(' → ')}</p><div className="advisor-chipline">{a.sets.map(x=><span key={x}>{x}</span>)}</div></div>
+      <div className="advisor-card"><span className="advisor-label">WEAPONS</span><div className="advisor-chipline">{a.weapons.map((x,i)=><span key={x} className={i===0?'advisor-chip-emphasis':''}>{x}</span>)}</div></div>
+      <div className="advisor-card"><span className="advisor-label">TALENT PLAN</span><p className="advisor-talent">{a.talentPriority}</p><span className="advisor-label advisor-label-gap">CURRENT BUILD CHECK</span><div className="advisor-findings">{findings.map((x,i)=><p key={i}>↳ {x}</p>)}</div></div>
+    </div>
+    <div className="advisor-card advisor-team-card"><span className="advisor-label">TEAM COMPS</span><div className="advisor-teams">{a.teams.map(team=><div className="advisor-team" key={team.name}><div className="advisor-team-members">{team.members.map(m=><span key={m}>{m}</span>)}</div><b>{team.name}</b><p>{team.why}</p></div>)}</div></div>
+    <p className="advisor-source">Reference baseline: KQM character guides and rotation theory; exact recommendations vary with constellations, weapons, teammates and enemy content.</p>
+  </section>;
+}
+
 function DetailModal({ character: c, onClose }: { character: Character; onClose: () => void }) {
   const bd = c.breakdown || {};
   const weapon = bd.weapon || c.weapon;
@@ -166,7 +254,7 @@ function DetailModal({ character: c, onClose }: { character: Character; onClose:
       <button className="detail-close" onClick={onClose} aria-label="Close">✕</button>
       <p className="eyebrow">FULL BUILD BREAKDOWN</p>
       <h2 className="detail-title">{c.name}</h2>
-      <p className="detail-sub">Level {c.level} · C{c.constellation} · {c.weapon ? `${c.weapon.rarity}★ ${c.weapon.name} R${c.weapon.refinement}` : 'No weapon data'}</p>
+      <AdvisorSection character={c}/>\n      <p className="detail-sub">Level {c.level} · C{c.constellation} · {c.weapon ? `${c.weapon.rarity}★ ${c.weapon.name} R${c.weapon.refinement}` : 'No weapon data'}</p>
       <section className="detail-section"><p className="detail-heading">WEAPON</p><div className="breakdown-grid">
         <Breakdown label="BASE ATK" value={numberText(weapon?.baseAttack)} note="Weapon base attack" wide/>
         {(weapon?.stats || []).filter(x=>x.key!=='FIGHT_PROP_BASE_ATTACK').map((x,i)=><Breakdown key={i} label={x.label} value={x.percent?percentText(x.value):numberText(x.value)} note="Weapon secondary"/>)}
