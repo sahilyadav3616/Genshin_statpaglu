@@ -44,7 +44,7 @@ function renderBreakdownStat(key: string, value: number) {
   return percentageKeys.has(key) ? percentText(value) : numberText(value);
 }
 function FrostAmbience() {\n  useEffect(() => {\n    const field = document.querySelector('#frostField'); if (!field) return;\n    const spots = [[8,16],[91,18],[5,52],[94,48],[12,84],[88,82],[48,8],[52,93],[22,39],[79,63],[35,78],[67,27]];\n    spots.forEach(([x,y],i) => {\n      const node=document.createElement('span'); node.className='frost-patch'; node.style.left=x+'%'; node.style.top=y+'%';\n      node.style.setProperty('--rot',(i*31%70-35)+'deg'); node.style.setProperty('--dur',(12+(i%5)*2)+'s'); node.style.setProperty('--delay',(-i*1.9)+'s'); field.appendChild(node);\n    });\n    [[15,25],[85,38],[25,90],[73,12]].forEach(([x,y],i) => {\n      const node=document.createElement('span'); node.className='frost-edge'; node.style.left=x+'%'; node.style.top=y+'%'; node.style.animationDelay=(-i*2.1)+'s'; field.appendChild(node);\n    });\n    return () => { field.innerHTML=''; };\n  }, []);\n  return <div className="frost-field" id="frostField" aria-hidden="true" />;\n}\n\nexport default function Home() {
-  const [uid, setUid] = useState('');
+  const [uid, setUid] = useState('863353806');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [status, setStatus] = useState('ENTER UID');
   const [live, setLive] = useState(true);
