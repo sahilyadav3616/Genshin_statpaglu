@@ -88,7 +88,7 @@ export default function Home() {
   function submit(e: FormEvent) { e.preventDefault(); loadProfile(uid); }
   return (
     <main className="page-shell">
-      <div className="ambient ambient-a"/><div className="ambient ambient-b"/>
+      <div className="ambient ambient-a"/><div className="ambient ambient-b"/><FrostAmbience />
       <header className="topbar">
         <a className="brand" href="#top" aria-label="Genshin StatPaglu home"><span className="brand-mark">SP</span><span>GENSHIN <b>STATPAGLU</b></span></a>
         <div className="nav-actions"><div className="nav-status"><i className={live ? 'online' : 'offline'} /> {status}</div><button id="themeToggle" className="theme-toggle" type="button">☼ LIGHT</button></div>
