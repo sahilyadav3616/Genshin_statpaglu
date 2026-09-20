@@ -54,7 +54,14 @@ Both read public Genshin showcase data from Enka.Network. Only characters expose
 - Character-specific aliases are supported where Genshin's character-data skill IDs and raw showcase skill IDs use different namespaces; Ayaka is explicitly mapped as Normal `10024/10261`, Skill `10018/10262`, Burst `10019/10265`.
 - A stable `1/2/5` skill-ID suffix fallback is retained for other characters when wrapper metadata IDs do not match the raw Enka IDs, preventing characters such as Ayaka from incorrectly showing 1/1/1.
 
-### UI & ambience
+### UI & design system
+- The current interface uses an Apple-HIG-inspired design approach: clear hierarchy, restrained surfaces, consistent spacing, accessible touch targets, visible focus states, responsive layouts, and explicit loading/feedback states.
+- The design keeps StatPaglu's Genshin/frost identity rather than copying iOS-specific controls or visual components.
+- Dark mode remains the default, with a persistent light mode and reduced-motion support.
+- The redesign is applied to both the root implementation and the Next.js implementation.
+- The previous pre-redesign interface is preserved on the `backup/current-design-2026-09-20` Git branch for fallback/comparison.
+
+## UI & ambience
 - Dark theme is the default.
 - Sun/moon light-mode toggle with local preference persistence.
 - Ayaka-inspired crystalline snowflake ambience.
