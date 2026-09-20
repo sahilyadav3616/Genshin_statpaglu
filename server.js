@@ -13,13 +13,15 @@ const files = new Map([
   ['/styles.css', 'styles.css'],
   ['/app.js', 'app.js'],
   ['/profile-cache.js', 'profile-cache.js'],
-  ['/ayaka-snowflake.png', 'ayaka-snowflake.png']
+  ['/ayaka-snowflake.png', 'ayaka-snowflake.png'],
+  ['/ayaka-snowflake.svg', 'ayaka-snowflake.svg']
 ]);
 const types = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
-  '.png': 'image/png'
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml'
 };
 
 function send(res, status, body, type = 'application/json; charset=utf-8') {
