@@ -113,6 +113,43 @@ function image(meta={}){
 function talents(raw,meta={}) {
   const levels=raw?.skillLevelMap||{};
   const entries=Object.keys(levels).map(key=>({key,id:Number(key),level:Number(levels[key])})).filter(x=>Number.isFinite(x.level)&&x.level>0);
+
+  // Enka documents skillLevelMap as { skill_id: level }. Resolve by actual
+  // skill ID first; then use the active-skill suffixes 1/2/5; only then use
+  // a positional fallback when the raw map has no classifiable IDs.
+  const definitions=[
+    ['Normal Attack',meta?.skills?.normalAttack??meta?.skills?.normalAttacks,1,0],
+    ['Elemental Skill',meta?.skills?.elementalSkill,2,1],
+    ['Elemental Burst',meta?.skills?.elementalBurst,5,2]
+  ];
+
+  return definitions.map(([name,skill,suffix,fallbackIndex])=>{
+    const explicitIds=[];
+    if(skill&&typeof skill==='object'){
+      for(const key of ['id','skillId','skillID','rawId','apiId']){
+        const n=Number(skill[key]); if(Number.isFinite(n)) explicitIds.push(n);
+      }
+    }
+
+    let candidate=null;
+    for(const id of explicitIds){candidate=entries.find(x=>x.id===id);if(candidate)break}
+    candidate ||= entries.find(x=>Math.abs(x.id)%10===suffix);
+
+    if(!candidate){
+      const active=entries.filter(x=>[1,2,5].includes(Math.abs(x.id)%10))
+        .sort((a,b)=>(Math.abs(a.id)%10)-(Math.abs(b.id)%10));
+      candidate=active.find(x=>Math.abs(x.id)%10===suffix)||active[fallbackIndex]||null;
+    }
+
+    if(!candidate&&entries.length===3) candidate=entries[fallbackIndex];
+
+    const wrapperLevel=skill&&typeof skill==='object'?Number(skill.level):NaN;
+    const level=Number(candidate?.level??(Number.isFinite(wrapperLevel)?wrapperLevel:1));
+    return {name,level:Number.isFinite(level)&&level>0?level:1};
+  });
+}) {
+  const levels=raw?.skillLevelMap||{};
+  const entries=Object.keys(levels).map(key=>({key,id:Number(key),level:Number(levels[key])})).filter(x=>Number.isFinite(x.level)&&x.level>0);
   // skillLevelMap is keyed by actual skill IDs; object order is not the
   // Normal/Skill/Burst order. Prefer wrapper ids, then the stable combat-skill
   // suffixes (1/2/5) used by Genshin's Normal/Skill/Burst skill IDs.
