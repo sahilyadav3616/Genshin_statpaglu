@@ -480,7 +480,7 @@ function talentRows(raw, meta) {
   })).filter(x => Number.isFinite(x.level) && x.level > 0);
 
   // Enka's skillLevelMap is keyed by the actual skill ID. Never use object
-  // insertion order here: Ayaka, for example, can expose 10521/10522/10525
+  // insertion order here: Ayaka, for example, can expose IDs such as 10261/10262/10265
   // (Normal/Skill/Burst), while the first map entry is not guaranteed to be
   // Normal Attack. Prefer an explicit metadata id when the wrapper supplies
   // one, then use the stable Genshin combat-skill suffixes as a raw fallback.
@@ -492,9 +492,8 @@ function talentRows(raw, meta) {
 
   return definitions.map(([name, skill, suffix]) => {
     const explicitId = typeof skill === 'object' && skill?.id != null ? Number(skill.id) : NaN;
-    const candidate = Number.isFinite(explicitId)
-      ? entries.find(x => x.id === explicitId)
-      : entries.find(x => Math.abs(x.id) % 10 === suffix);
+    const candidate = (Number.isFinite(explicitId) ? entries.find(x => x.id === explicitId) : null)
+      || entries.find(x => Math.abs(x.id) % 10 === suffix);
     const level = Number(candidate?.level ?? (typeof skill === 'object' ? skill?.level : undefined) ?? 1);
     return { name, level: Number.isFinite(level) && level > 0 ? level : 1 };
   });
