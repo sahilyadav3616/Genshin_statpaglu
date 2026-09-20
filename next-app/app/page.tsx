@@ -64,11 +64,12 @@ function FrostAmbience() {\n  useEffect(() => {\n    const field = document.quer
       setStatus((error as Error).message.toUpperCase()); setLive(false);
     }
   }
-  useEffect(()=>{const b=document.querySelector('#themeToggle');if(!b)return;if(localStorage.getItem('statpaglu-theme')==='light')document.body.classList.add('light-mode');const sync=()=>b.textContent=document.body.classList.contains('light-mode')?'☾ DARK':'☼ LIGHT';sync();b.addEventListener('click',()=>{document.body.classList.toggle('light-mode');localStorage.setItem('statpaglu-theme',document.body.classList.contains('light-mode')?'light':'dark');sync()})},[]);
+  useEffect(()=>{const b=document.querySelector('#themeToggle');if(!b)return;if(localStorage.getItem('statpaglu-theme')==='light')document.body.classList.add('light-mode');const sync=()=>{const light=document.body.classList.contains('light-mode');b.innerHTML=light?'☀ <span>LIGHT</span>':'☾ <span>DARK</span>';b.setAttribute('aria-pressed',String(light));b.setAttribute('aria-label',light?'Switch to dark mode':'Switch to light mode')};sync();b.addEventListener('click',()=>{document.body.classList.toggle('light-mode');localStorage.setItem('statpaglu-theme',document.body.classList.contains('light-mode')?'light':'dark');sync()})},[]);
   const characters = useMemo(() => {
     const needle = filter.trim().toLowerCase();
     return (profile?.characters || []).map((c,i)=>({c,i})).filter(({c})=>!needle || c.name.toLowerCase().includes(needle));
   }, [profile, filter]);
+  useEffect(()=>{loadProfile('863353806')},[]);
   const selectedCharacter = selected == null ? null : profile?.characters[selected] || null;
   function submit(e: FormEvent) { e.preventDefault(); loadProfile(uid); }
   return (
