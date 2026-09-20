@@ -74,6 +74,7 @@ async function loadWorldBenchmark(character){
 function openDetail(index){
   const c = currentCharacters[index]; if(!c) return;
   const modal = document.querySelector('#detailModal');
+  modal.dataset.characterId=String(c.id);
   modal.querySelector('.detail-title').textContent = c.name;
   modal.querySelector('.detail-sub').textContent = `Level ${c.level}  ·  C${c.constellation}  ·  ${c.weapon?`${c.weapon.rarity}★ ${c.weapon.name} R${c.weapon.refinement}`:'No weapon data'}`;
   modal.querySelector('.detail-stats').innerHTML = c.stats.length ? c.stats.map(s=>`<div class="detail-stat"><span>${escapeHTML(s.label)}</span><b>${escapeHTML(s.value)}</b></div>`).join('') : '<p class="detail-empty">No stat data available.</p>';
@@ -127,6 +128,10 @@ document.querySelector('#uidForm').addEventListener('submit',e=>{e.preventDefaul
 document.querySelector('#reload').addEventListener('click',()=>{const uid=document.querySelector('#uidInput').value.replace(/\D/g,'');if(uid.length<8)return;load(uid)});
 document.querySelector('#filterInput').addEventListener('input',e=>renderRoster(e.target.value));
 document.querySelector('#detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal'||e.target.closest('.detail-close'))closeDetail()});
+document.querySelector('#compareWorld')?.addEventListener('click',()=>{
+  const c=currentCharacters.find(x=>String(x.id)===String(document.querySelector('#detailModal')?.dataset?.characterId));
+  if(c) loadWorldBenchmark(c);
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
 // Do not load a profile automatically; the UID field starts empty.
 /* Teyvat Radio — public YouTube embeds, no account required. */
