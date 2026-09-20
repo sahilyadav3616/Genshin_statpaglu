@@ -123,7 +123,7 @@ function talents(raw,meta={}) {
   ];
   return definitions.map(([name,skill,suffix])=>{
     const explicitId=typeof skill==='object'&&skill?.id!=null?Number(skill.id):NaN;
-    const candidate=Number.isFinite(explicitId)?entries.find(x=>x.id===explicitId):entries.find(x=>Math.abs(x.id)%10===suffix);
+    const candidate=(Number.isFinite(explicitId)?entries.find(x=>x.id===explicitId):null)||entries.find(x=>Math.abs(x.id)%10===suffix);
     const level=Number(candidate?.level??(typeof skill==='object'?skill?.level:undefined)??1);
     return {name,level:Number.isFinite(level)&&level>0?level:1};
   });
