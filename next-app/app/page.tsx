@@ -58,7 +58,7 @@ function FrostAmbience() {
 }
 
 export default function Home() {
-  const [uid, setUid] = useState('863353806');
+  const [uid, setUid] = useState('');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [status, setStatus] = useState('ENTER UID');
   const [live, setLive] = useState(true);
@@ -83,7 +83,6 @@ export default function Home() {
     const needle = filter.trim().toLowerCase();
     return (profile?.characters || []).map((c,i)=>({c,i})).filter(({c})=>!needle || c.name.toLowerCase().includes(needle));
   }, [profile, filter]);
-  useEffect(()=>{loadProfile('863353806')},[]);
   const selectedCharacter = selected == null ? null : profile?.characters[selected] || null;
   function submit(e: FormEvent) { e.preventDefault(); loadProfile(uid); }
   return (
