@@ -108,7 +108,7 @@ function FrostAmbience() {\n  useEffect(() => {\n    const field = document.quer
           {!profile ? <div className="loading">{status}<span/></div> : !characters.length ? <div className="loading">NO CHARACTERS MATCH “{filter.toUpperCase()}”</div> : characters.map(({c,i},pos)=><CharacterCard key={`${c.id}-${i}`} c={c} index={pos} onOpen={()=>setSelected(i)} />)}
         </div>
       </section>
-      <section className="support-panel"><span className="eyebrow">SUPPORT THE PROJECT</span><p>If StatPaglu helped you, you can support development.</p><a className="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ SUPPORT VIA UPI</a></section>
+      <section className="support-panel"><span className="eyebrow">SUPPORT THE PROJECT</span><p>If StatPaglu helped you, you can support development.</p><div className="upi-id">UPI: <b>sahilyadav3616.1@oksbi</b></div><a className="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ SUPPORT VIA UPI</a></section>
       <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
       {selectedCharacter && <DetailModal character={selectedCharacter} onClose={()=>setSelected(null)} />}
     </main>
