@@ -16,7 +16,8 @@ const files = new Map([
   ['/ayaka-snowflake.png', 'ayaka-snowflake.png'],
   ['/ayaka-snowflake.svg', 'ayaka-snowflake.svg'],
   ['/robots.txt', 'robots.txt'],
-  ['/sitemap.xml', 'sitemap.xml']
+  ['/sitemap.xml', 'sitemap.xml'],
+  ['/google925b67fbca680cb7.html', 'google925b67fbca680cb7.html']
 ]);
 const types = {
   '.html': 'text/html; charset=utf-8',
