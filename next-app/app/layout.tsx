@@ -6,7 +6,7 @@ const siteUrl = 'https://genshin-statpaglu.onrender.com';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'Genshin StatPaglu — Genshin Build Viewer, UID Checker & Character Stats',
-  description: 'Free Genshin Impact build viewer and UID checker. Inspect public character showcases, combat stats, weapons, artifacts, talents and constellations using Enka.Network data.',
+  description: 'Free Genshin Impact build viewer and UID checker. Inspect public character showcases, combat stats, weapons, artifacts, talents and constellations.',
   applicationName: 'Genshin StatPaglu',
   alternates: { canonical: '/' },
   keywords: [
