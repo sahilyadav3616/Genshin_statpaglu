@@ -3,26 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Genshin StatPaglu | Build Viewer & UID Checker</title>
-    <meta name="description" content="Genshin StatPaglu is a free Genshin Impact build viewer, UID checker and character stats viewer. Inspect public Genshin showcases, weapons, artifacts, talents, constellations and combat stats." />
+    <title>Genshin StatPaglu — Build Viewer & UID Checker</title>
+    <meta name="description" content="Genshin StatPaglu is a free Genshin Impact build viewer, UID checker and character stats viewer. Inspect public Genshin showcases, weapons, artifacts, talents, constellations and combat stats with Enka.Network data." />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://genshin-statpaglu.onrender.com/" />
     <meta name="author" content="Genshin StatPaglu" />
     <meta name="theme-color" content="#0c1320" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Genshin StatPaglu | Build Viewer & UID Checker" />
+    <meta property="og:title" content="Genshin StatPaglu — Build Viewer & UID Checker" />
     <meta property="og:description" content="Free Genshin Impact build viewer and UID checker for public showcases — inspect stats, weapons, artifacts, talents and constellations." />
     <meta property="og:url" content="https://genshin-statpaglu.onrender.com/" />
     <meta property="og:site_name" content="Genshin StatPaglu" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Genshin StatPaglu | Build Viewer & UID Checker" />
+    <meta name="twitter:title" content="Genshin StatPaglu — Build Viewer & UID Checker" />
     <meta name="twitter:description" content="Inspect Genshin Impact character builds, artifacts, weapons, talents and combat stats from a public UID." />
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","@id":"https://genshin-statpaglu.onrender.com/#app","name":"Genshin StatPaglu","alternateName":["StatPaglu","Genshin Stat Paglu"],"url":"https://genshin-statpaglu.onrender.com/","description":"Free Genshin Impact build viewer, UID checker and character stats viewer for public showcases.","applicationCategory":"GameApplication","operatingSystem":"Web","isAccessibleForFree":true,"browserRequirements":"Requires JavaScript","sameAs":["https://github.com/sahilyadav3616/Genshin_statpaglu"]},{"@type":"Organization","@id":"https://genshin-statpaglu.onrender.com/#organization","name":"Genshin StatPaglu","url":"https://genshin-statpaglu.onrender.com/","sameAs":["https://github.com/sahilyadav3616/Genshin_statpaglu"]},{"@type":"WebSite","@id":"https://genshin-statpaglu.onrender.com/#website","url":"https://genshin-statpaglu.onrender.com/","name":"Genshin StatPaglu","alternateName":"Genshin Build Viewer","publisher":{"@id":"https://genshin-statpaglu.onrender.com/#organization"}}]}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="aurora aurora-one"></div><div class="aurora aurora-two"></div><div class="frost-field" id="frostField" aria-hidden="true"></div>
+    <div class="aurora aurora-one"></div><div class="aurora aurora-two"></div><div class="frost-field" id="frostField" aria-hidden="true"></div><div class="fun-float" aria-hidden="true"><span class="spark">✦</span><span class="spark">✧</span><span class="spark">⋆</span></div>
     <main class="shell">
       <nav class="topbar">
         <a class="brand" href="#top" aria-label="Genshin StatPaglu home"><i></i>GENSHIN <span>STATPAGLU</span></a>
@@ -35,12 +38,12 @@
       <section class="hero" id="top">
         <div class="eyebrow">GENSHIN IMPACT • CHARACTER ARCHIVE</div>
         <h1>Genshin builds.<br /><em>Made readable.</em></h1>
-        <p>Use StatPaglu as a Genshin build viewer and UID checker. Explore character stats, weapons, artifacts, talents, constellations and refinements from a public Enka profile.</p>
+        <p>Use StatPaglu as a Genshin build viewer and UID checker. Explore character stats, weapons, artifacts, talents, constellations and refinements from a public showcase.</p>
         <form class="uid-form" id="uidForm">
           <input id="uidInput" inputmode="numeric" aria-label="Genshin UID" placeholder="Enter UID" maxlength="10" />
           <button type="submit">LOAD PROFILE <span>→</span></button>
         </form>
-        <p class="hint">Enter any public UID. Data is retrieved from the public Genshin showcase.</p>
+        <p class="hint">Enter any public UID. Your builds are waiting ✦</p><div class="fun-note"><span class="fun-chip">UID IN → BUILD OUT</span><b>Public showcase data only</b></div>
       <section class="ost-player" aria-label="Genshin Impact OST player">
         <div class="ost-copy"><span class="eyebrow">TEYVAT RADIO</span><strong id="ostTitle">GENSHIN OST</strong><small id="ostStatus">PRESS PLAY TO START</small></div>
         <div class="ost-controls"><button id="ostPrev" type="button" aria-label="Previous track">‹</button><button id="ostPlay" type="button" aria-label="Play or pause">▶</button><button id="ostNext" type="button" aria-label="Next track">›</button></div>
@@ -50,7 +53,7 @@
       <section class="seo-intro" aria-labelledby="about-statpaglu">
         <div class="eyebrow">GENSHIN IMPACT BUILD TOOL</div>
         <h2 id="about-statpaglu">Genshin build viewer and UID checker</h2>
-        <p>Genshin StatPaglu lets you inspect public Genshin Impact showcases in one place. Enter a public UID to view character builds, combat stats, weapons, artifact sets and substats, talents, constellations, and other showcase data retrieved.</p>
+        <p>Genshin StatPaglu lets you inspect public Genshin Impact showcases in one place. Enter a public UID to view character builds, combat stats, weapons, artifact sets and substats, talents, constellations, and other showcase data retrieved from Enka.Network.</p>
         <p>Use it to check <strong>Genshin character stats</strong>, <strong>Genshin artifact stats</strong>, <strong>Genshin weapon builds</strong>, and public UID showcases.</p>
       </section>
       <section class="profile-panel" aria-live="polite">
@@ -61,7 +64,7 @@
       <section class="collection">
         <div class="section-heading"><div><span class="eyebrow">PUBLIC SHOWCASE</span><h2>Character roster <small id="count">— builds</small></h2></div><button id="reload" class="ghost-button">↻ REFRESH</button></div>
         <input id="filterInput" class="filter-input" type="text" placeholder="Filter showcased characters by name…" aria-label="Filter characters" />
-        <p class="hint" style="margin:8px 0 22px!important">Only characters returned by your public Enka showcase are shown. Those are owned characters visible to Enka; the service cannot expose hidden/non-showcased characters.</p>
+        <p class="hint" style="margin:8px 0 22px!important">Only characters returned by your public showcase are shown. Hidden or non-showcased characters stay off the roster.</p>
         <div class="roster" id="roster"><div class="loading">CONTACTING ENKA ARCHIVE<span></span></div></div>
       </section>
       <section class="support-panel">
@@ -75,7 +78,7 @@
         <small class="upi-fallback" id="upiFallback">If the UPI app does not open, copy the UPI ID and pay from your preferred app.</small>
       </section>
     </main>
-    <footer>GENSHIN STATPAGLU <span>•</span> DATA SOURCED FROM PUBLIC SHOWCASES <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
+    <footer>GENSHIN STATPAGLU <span>•</span> DATA POWERED BY ENKA.NETWORK <span>•</span> NOT AFFILIATED WITH HOYOVERSE</footer>
     <template id="cardTemplate">
       <article class="build-card">
         <div class="card-glow"></div>
