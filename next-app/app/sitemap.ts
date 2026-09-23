@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next';
 
+const siteUrl = 'https://genshin-statpaglu.onrender.com';
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://genshin-statpaglu.onrender.com/',
+      url: siteUrl + '/',
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
