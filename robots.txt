@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://genshin-statpaglu.onrender.com/sitemap.xml
+
+# Public profile pages are generated dynamically from UIDs; the homepage is the indexable landing page.
