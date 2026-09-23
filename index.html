@@ -3,19 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Genshin StatPaglu | Genshin Build Viewer & Stats</title>
-    <meta name="description" content="Genshin StatPaglu is a free Genshin Impact build viewer and character stat checker. Enter a public UID to view characters, weapons, artifacts, talents, constellations and combat stats from Enka.Network." />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <title>Genshin StatPaglu — Genshin Build Viewer, UID Checker & Character Stats</title>
+    <meta name="description" content="Genshin StatPaglu is a free Genshin Impact build viewer, UID checker and character stats viewer. Inspect public Genshin showcases, weapons, artifacts, talents, constellations and combat stats with Enka.Network data." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://genshin-statpaglu.onrender.com/" />
+    <meta name="author" content="Genshin StatPaglu" />
+    <meta name="theme-color" content="#0c1320" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Genshin StatPaglu | Genshin Build Viewer & Stats" />
-    <meta property="og:description" content="Free Genshin Impact build viewer for public UID showcases — stats, weapons, artifacts, talents and constellations." />
+    <meta property="og:title" content="Genshin StatPaglu — Genshin Build Viewer, UID Checker & Character Stats" />
+    <meta property="og:description" content="Free Genshin Impact build viewer and UID checker for public showcases — inspect stats, weapons, artifacts, talents and constellations." />
     <meta property="og:url" content="https://genshin-statpaglu.onrender.com/" />
     <meta property="og:site_name" content="Genshin StatPaglu" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Genshin StatPaglu | Genshin Build Viewer & Stats" />
-    <meta name="twitter:description" content="View Genshin Impact character builds, artifacts, weapons, talents and combat stats from a public UID." />
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Genshin StatPaglu","url":"https://genshin-statpaglu.onrender.com/","description":"Free Genshin Impact public showcase viewer for character builds, weapons, artifacts, talents and combat stats.","applicationCategory":"GameApplication","operatingSystem":"Web","isAccessibleForFree":true,"sameAs":["https://github.com/sahilyadav3616/Genshin_statpaglu"]}</script>
+    <meta name="twitter:title" content="Genshin StatPaglu — Genshin Build Viewer & Character Stats" />
+    <meta name="twitter:description" content="Inspect Genshin Impact character builds, artifacts, weapons, talents and combat stats from a public UID." />
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","@id":"https://genshin-statpaglu.onrender.com/#app","name":"Genshin StatPaglu","alternateName":["StatPaglu","Genshin Stat Paglu"],"url":"https://genshin-statpaglu.onrender.com/","description":"Free Genshin Impact build viewer, UID checker and character stats viewer for public showcases.","applicationCategory":"GameApplication","operatingSystem":"Web","isAccessibleForFree":true,"browserRequirements":"Requires JavaScript","sameAs":["https://github.com/sahilyadav3616/Genshin_statpaglu"]},{"@type":"Organization","@id":"https://genshin-statpaglu.onrender.com/#organization","name":"Genshin StatPaglu","url":"https://genshin-statpaglu.onrender.com/","sameAs":["https://github.com/sahilyadav3616/Genshin_statpaglu"]},{"@type":"WebSite","@id":"https://genshin-statpaglu.onrender.com/#website","url":"https://genshin-statpaglu.onrender.com/","name":"Genshin StatPaglu","alternateName":"Genshin Build Viewer","publisher":{"@id":"https://genshin-statpaglu.onrender.com/#organization"}}]}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -34,8 +37,8 @@
       </nav>
       <section class="hero" id="top">
         <div class="eyebrow">GENSHIN IMPACT • CHARACTER ARCHIVE</div>
-        <h1>Builds worth<br /><em>showing off.</em></h1>
-        <p>Explore stats, equipment, and refinements in a cleaner character card built from your Enka profile.</p>
+        <h1>Genshin builds.<br /><em>Made readable.</em></h1>
+        <p>Use StatPaglu as a Genshin build viewer and UID checker. Explore character stats, weapons, artifacts, talents, constellations and refinements from a public Enka profile.</p>
         <form class="uid-form" id="uidForm">
           <input id="uidInput" inputmode="numeric" aria-label="Genshin UID" placeholder="Enter UID" maxlength="10" />
           <button type="submit">LOAD PROFILE <span>→</span></button>
@@ -46,6 +49,12 @@
         <div class="ost-controls"><button id="ostPrev" type="button" aria-label="Previous track">‹</button><button id="ostPlay" type="button" aria-label="Play or pause">▶</button><button id="ostNext" type="button" aria-label="Next track">›</button></div>
         <div class="ost-video" aria-hidden="true"><div id="ostYoutube"></div></div>
       </section>
+      </section>
+      <section class="seo-intro" aria-labelledby="about-statpaglu">
+        <div class="eyebrow">GENSHIN IMPACT BUILD TOOL</div>
+        <h2 id="about-statpaglu">Genshin build viewer and UID checker</h2>
+        <p>Genshin StatPaglu lets you inspect public Genshin Impact showcases in one place. Enter a public UID to view character builds, combat stats, weapons, artifact sets and substats, talents, constellations, and other showcase data retrieved from Enka.Network.</p>
+        <p>Use it to check <strong>Genshin character stats</strong>, <strong>Genshin artifact stats</strong>, <strong>Genshin weapon builds</strong>, and public UID showcases.</p>
       </section>
       <section class="profile-panel" aria-live="polite">
         <div class="profile-identity"><div class="profile-mark">K</div><div><span>TRAVELER PROFILE</span><h2 id="nickname">Loading profile…</h2></div></div>
