@@ -462,6 +462,30 @@ function normalizeRawWeapon(rawWeapon, metadata) {
   };
 }
 
+function profilePictureUrl(playerInfo, wrapped, metaById) {
+  const direct = [
+    wrapped?.player?.avatar?.icon?.url,
+    wrapped?.player?.avatar?.icon?.uri,
+    wrapped?.player?.avatar?.icon?.path
+  ].find(Boolean);
+  if (direct) return direct;
+
+  const avatarId = Number(playerInfo?.profilePicture?.avatarId || playerInfo?.profilePicture?.avatarID || 0);
+  if (avatarId && metaById) {
+    const meta = metaById.get(avatarId);
+    const candidates = [
+      meta?.icon?.url,
+      meta?.icon?.uri,
+      meta?.characterData?.icons?.card?.url,
+      meta?.characterData?.icons?.avatar?.url,
+      meta?.icons?.card?.url,
+      meta?.icons?.avatar?.url
+    ].filter(Boolean);
+    if (candidates[0]) return candidates[0];
+  }
+  return null;
+}
+
 function characterImageFromMetadata(c) {
   const candidates = [
     c?.characterData?.icons?.gacha?.url,
@@ -644,7 +668,8 @@ async function buildProfile(uid) {
       nickname: p.nickname || wrapped?.player?.username || wrapped?.player?.nickname || 'Traveler',
       level: Number(p.level || p.adventureRank || wrapped?.player?.levels?.rank || 0),
       worldLevel: Number(p.worldLevel ?? wrapped?.player?.levels?.world ?? 0),
-      abyss: p.towerFloorIndex ? `${p.towerFloorIndex}-${p.towerLevelIndex || ''}` : (wrapped?.player?.abyssFloor ? `${wrapped.player.abyssFloor}-${wrapped.player.abyssChamber || ''}` : null)
+      abyss: p.towerFloorIndex ? `${p.towerFloorIndex}-${p.towerLevelIndex || ''}` : (wrapped?.player?.abyssFloor ? `${wrapped.player.abyssFloor}-${wrapped.player.abyssChamber || ''}` : null),
+      profilePictureUrl: profilePictureUrl(p, wrapped, metaById)
     },
     characters
   };
