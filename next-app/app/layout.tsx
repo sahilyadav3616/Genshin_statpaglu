@@ -6,7 +6,7 @@ const siteUrl = 'https://genshin-statpaglu.onrender.com';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'Genshin StatPaglu — Genshin Build Viewer, UID Checker & Character Stats',
-  description: 'Free Genshin Impact build viewer and UID checker. Inspect public character showcases, combat stats, weapons, artifacts, talents and constellations.',
+  description: 'Genshin UID build viewer for characters, weapons & gear.',
   applicationName: 'Genshin StatPaglu',
   alternates: { canonical: '/' },
   keywords: [
@@ -28,14 +28,14 @@ export const metadata: Metadata = {
     type: 'website',
     url: siteUrl,
     title: 'Genshin StatPaglu — Genshin Build Viewer & Character Stats',
-    description: 'Inspect Genshin Impact public showcases with character stats, weapons, artifacts, talents and constellations.',
+    description: 'Genshin UID build viewer for characters, weapons & gear.',
     siteName: 'Genshin StatPaglu',
     locale: 'en_US'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Genshin StatPaglu — Genshin Build Viewer',
-    description: 'Inspect Genshin Impact character builds and public UID stats.'
+    description: 'Genshin UID build viewer for characters, weapons & gear.'
   }
 };
 
@@ -48,7 +48,7 @@ const jsonLd = {
       name: 'Genshin StatPaglu',
       alternateName: ['StatPaglu', 'Genshin Stat Paglu'],
       url: siteUrl,
-      description: 'Free Genshin Impact build viewer, UID checker and character stats viewer for public showcases.',
+      description: 'Genshin UID build viewer for characters, weapons & gear.',
       applicationCategory: 'GameApplication',
       operatingSystem: 'Web',
       isAccessibleForFree: true,
