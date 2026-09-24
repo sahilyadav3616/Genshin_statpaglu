@@ -163,7 +163,7 @@ function CharacterCard({ c, index, onOpen }: { c: Character; index: number; onOp
     <div className="card-view-detail">OPEN BUILD →</div>
   </article>;
 }
-function RandomQuote() {\n  const [quote,setQuote]=useState(STATPAGLU_QUOTES[0]);\n  useEffect(()=>{ setQuote(STATPAGLU_QUOTES[Math.floor(Math.random()*STATPAGLU_QUOTES.length)]); },[]);\n  return <div className="voice-line" aria-label="Genshin Impact voice line"><blockquote>{quote[0]}</blockquote><cite>{quote[1]}</cite></div>;\n}\n\nfunction OstPlayer() {
+function RandomQuote() {\n  const [quote,setQuote]=useState(STATPAGLU_QUOTES[Math.floor(Math.random()*STATPAGLU_QUOTES.length)]);\n  useEffect(()=>{ setQuote(STATPAGLU_QUOTES[Math.floor(Math.random()*STATPAGLU_QUOTES.length)]); },[]);\n  return <div className="voice-line" aria-label="Genshin Impact voice line"><blockquote>{quote[0]}</blockquote><cite>{quote[1]}</cite></div>;\n}\n\nfunction OstPlayer() {
   const [ready,setReady]=useState(false),[playing,setPlaying]=useState(false),[title,setTitle]=useState('GENSHIN OST');
   const playerRef=useRef<any>(null);
   const playlists=['PLdni05PnuscvEM17RtWoy1jraPhumpdjV','PLEtIOnOw_h3G1OmRFImKCN4Q7giTtU9Pu','PL6vhLV1hjE9FYKq2enry6ACfXeyuatAi_','PL6vhLV1hjE9ErikEhF5JxU8eEu2oSMVWG','OLAK5uy_mh7Qj9RzVthPsrRo2w8ouE-xmQHXLGzqs','OLAK5uy_nH3djc02OBm-qDh2ITZcoWxNOkbT2mfmw','OLAK5uy_lf8ZuhoICESI_ZXxd8eWu5tkIegnQG6Jo'];
