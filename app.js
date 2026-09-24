@@ -36,7 +36,13 @@ function setStatus(text,live=true){
 function updateProfile(data){
   const p=data.playerInfo||{};
   document.querySelector('#nickname').textContent=p.nickname||'Unknown Traveler';
-  document.querySelector('.profile-mark').textContent=(p.nickname||'?')[0].toUpperCase();
+  const profileAvatar=document.querySelector('#profileAvatar');
+  const fallbackAvatar='https://enka.network/ui/UI_AvatarIcon_PlayerBoy.png';
+  if(profileAvatar){
+    profileAvatar.src=p.profilePictureUrl||fallbackAvatar;
+    profileAvatar.alt=p.profilePictureUrl?'Traveler profile picture':'Aether';
+    profileAvatar.onerror=()=>{profileAvatar.onerror=null;profileAvatar.src=fallbackAvatar;profileAvatar.alt='Aether';};
+  }
   document.querySelector('#ar').textContent=`AR ${p.level||'—'}`;
   document.querySelector('#wl').textContent=`WL ${p.worldLevel||'—'}`;
   document.querySelector('#abyss').textContent=p.abyss||'—';
