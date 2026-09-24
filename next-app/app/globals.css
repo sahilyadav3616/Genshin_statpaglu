@@ -110,3 +110,25 @@ body.light-mode .advisor-summary{color:#5e687b}body.light-mode .advisor-card{bac
 
 /* Teyvat wisdom quote */
 .voice-line{min-height:220px;padding:28px;border:1px solid var(--line-strong);border-radius:28px;background:linear-gradient(145deg,rgba(169,154,255,.10),rgba(142,232,208,.045));backdrop-filter:blur(18px);box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center;gap:16px;position:relative;overflow:hidden}.voice-line:before{content:"“";position:absolute;right:18px;top:-24px;font:900 150px/1 Georgia,serif;color:rgba(169,154,255,.10);pointer-events:none}.voice-line blockquote{position:relative;margin:0;color:var(--ink);font:500 clamp(15px,1.7vw,20px)/1.5 Outfit;letter-spacing:-.3px}.voice-line cite{position:relative;color:var(--accent-2);font:9px 'DM Mono';letter-spacing:1px;text-transform:uppercase;font-style:normal}.voice-line cite:before{content:"— ";color:var(--subtle)}@media(max-width:900px){.voice-line{min-height:190px}}@media(max-width:620px){.voice-line{min-height:165px;padding:22px}.voice-line blockquote{font-size:15px}}
+
+/* Light-mode readability pass */
+body.light-mode .voice-line{background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(241,239,255,.94));border-color:rgba(25,32,52,.13);box-shadow:0 18px 60px rgba(40,50,80,.10)}
+body.light-mode .voice-line blockquote{color:#151927}
+body.light-mode .voice-line cite{color:#087b61}
+body.light-mode .voice-line:before{color:rgba(102,85,217,.09)}
+body.light-mode .fun-chip{color:#514a77;background:rgba(102,85,217,.07);border-color:rgba(102,85,217,.18)}
+body.light-mode .card-top,body.light-mode .card-bottom{color:#586277}
+body.light-mode .character-title p,body.light-mode .equipment p{color:#657087}
+body.light-mode .character-title h3{background:linear-gradient(90deg,#151927,#514a77 65%,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+body.light-mode .stat{border-color:rgba(25,32,52,.10)}
+body.light-mode .stat span{color:#667087}
+body.light-mode .equipment small{color:#657087}
+body.light-mode .card-view-detail{background:rgba(102,85,217,.07)}
+body.light-mode .detail-heading,body.light-mode .breakdown-box>span{color:#667087}
+body.light-mode .breakdown-box small,body.light-mode .artifact-head span,body.light-mode .artifact-main span,body.light-mode .artifact-subs span{color:#6c7588}
+body.light-mode .artifact-main b{color:#514a77}
+body.light-mode .detail-close{color:#3f4759;background:#f7f9fc}
+body.light-mode .advisor-summary{color:#4f596d}
+body.light-mode .advisor-label{color:#667087}
+body.light-mode .advisor-row span,body.light-mode .advisor-subline,body.light-mode .advisor-talent,body.light-mode .advisor-findings p{color:#5f697d}
+body.light-mode .advisor-chip-emphasis{color:#514a77!important;background:#f2efff!important}
