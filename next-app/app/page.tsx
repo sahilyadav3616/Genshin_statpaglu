@@ -43,6 +43,21 @@ function renderBreakdownStat(key: string, value: number) {
   const percentageKeys = new Set(['FIGHT_PROP_HP_PERCENT','FIGHT_PROP_ATTACK_PERCENT','FIGHT_PROP_DEFENSE_PERCENT','FIGHT_PROP_CRITICAL','FIGHT_PROP_CRITICAL_HURT','FIGHT_PROP_CHARGE_EFFICIENCY','FIGHT_PROP_HEAL_ADD','FIGHT_PROP_FIRE_ADD_HURT','FIGHT_PROP_ELEC_ADD_HURT','FIGHT_PROP_WATER_ADD_HURT','FIGHT_PROP_GRASS_ADD_HURT','FIGHT_PROP_WIND_ADD_HURT','FIGHT_PROP_ROCK_ADD_HURT','FIGHT_PROP_ICE_ADD_HURT','FIGHT_PROP_PHYSICAL_ADD_HURT']);
   return percentageKeys.has(key) ? percentText(value) : numberText(value);
 }
+function BannerScene() {
+  useEffect(() => {
+    const scene=document.querySelector('#bannerScene'); if(!scene)return;
+    const vesna=scene.querySelector('[data-role="vesna"]') as HTMLElement | null;
+    const vodyanitsa=scene.querySelector('[data-role="vodyanitsa"]') as HTMLElement | null;
+    if(!vesna||!vodyanitsa)return;
+    const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)'), p={x:0,y:0,a:false};
+    let raf=0, t0=performance.now(), paused=false;
+    const clamp=(n:number,a:number,b:number)=>Math.min(b,Math.max(a,n));
+    const tick=(now:number)=>{if(!paused){const t=(now-t0)/1000,px=p.a?p.x:0,py=p.a?p.y:0,bob=Math.sin(t*.75)*7,drift=Math.sin(t*.42)*18,vx=clamp(drift+px*16,-34,34),vy=clamp(bob+py*10,-18,18);vesna.style.transform=`translate3d(${vx}px,${vy}px,0)`;vodyanitsa.style.transform=`translate3d(${clamp(vx*.62+Math.sin(t*1.15)*6,-28,28)}px,${clamp(vy*.72+18+Math.sin(t*.9)*4,4,40)}px,0)`;scene.style.setProperty('--scene-px',String(px));scene.style.setProperty('--scene-py',String(py))}raf=requestAnimationFrame(tick)};
+    if(!reduced?.matches){const onMove=(e:PointerEvent)=>{const r=scene.getBoundingClientRect();p.x=clamp((e.clientX-(r.left+r.width/2))/(r.width/2),-1,1);p.y=clamp((e.clientY-(r.top+r.height/2))/(r.height/2),-1,1);p.a=true};const onLeave=()=>{p.x=0;p.y=0;p.a=false};scene.addEventListener('pointermove',onMove,{passive:true});scene.addEventListener('pointerleave',onLeave,{passive:true});const onVisibility=()=>paused=document.hidden;document.addEventListener('visibilitychange',onVisibility,{passive:true});raf=requestAnimationFrame(tick);return()=>{scene.removeEventListener('pointermove',onMove);scene.removeEventListener('pointerleave',onLeave);document.removeEventListener('visibilitychange',onVisibility);cancelAnimationFrame(raf)}}
+    vesna.style.transform='translate3d(0,0,0)';vodyanitsa.style.transform='translate3d(0,18px,0)';return()=>cancelAnimationFrame(raf);
+  },[]);
+  return <div className="banner-scene" id="bannerScene" aria-hidden="true"><div className="banner-haze"/><div className="banner-character banner-vesna" data-role="vesna"><span>VESNA</span></div><div className="banner-character banner-vodyanitsa" data-role="vodyanitsa"><span>VODYANITSA</span></div><i className="banner-ripple banner-ripple-one"/><i className="banner-ripple banner-ripple-two"/></div>;
+}
 function FrostAmbience() {
   useEffect(() => {
     const field = document.querySelector('#frostField'); if (!field) return;
@@ -106,6 +121,7 @@ export default function Home() {
             <p className="hint">Public showcase data is retrieved from Enka.Network.</p>
             <OstPlayer/>
           </div>
+          <BannerScene />
           <div className="hero-badge"><span>STATPAGLU</span><strong>BUILD<br/>CHECK</strong><small>01 / LIVE</small></div>
         </div>
       </section>
