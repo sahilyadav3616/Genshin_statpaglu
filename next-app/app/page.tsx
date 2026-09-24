@@ -26,7 +26,7 @@ type Character = {
   stats: Stat[];
   breakdown?: { baseCharacter?: Record<string, number>; bonus?: Record<string, number>; weapon?: Weapon; artifacts?: Record<string, number> };
 };
-type Profile = { uid: string; playerInfo: { nickname: string; level: number; worldLevel: number; abyss?: string | null }; characters: Character[] };
+type Profile = { uid: string; playerInfo: { nickname: string; level: number; worldLevel: number; abyss?: string | null; profilePictureUrl?: string | null }; characters: Character[] };
 
 const accents = ['#b99cff','#68d8ff','#f49ac8','#ffd36b','#71e0bd','#9db7ff'];
 const priorityLabels = ['CRIT Rate','CRIT DMG','ATK','Elemental Mastery','Energy Recharge','HP','DEF'];
@@ -121,11 +121,11 @@ export default function Home() {
       </section>
       <section className={`profile-panel ${profile ? '' : 'paimon-panel'}`}>
         {profile ? <>
-          <div className="profile-identity"><div className="profile-mark">{(profile.playerInfo.nickname || '?')[0].toUpperCase()}</div><div><span>TRAVELER PROFILE</span><h2>{profile.playerInfo.nickname || 'Unknown Traveler'}</h2></div></div>
+          <div className="profile-identity"><div className="profile-mark profile-avatar"><img src={profile.playerInfo.profilePictureUrl || 'https://enka.network/ui/UI_AvatarIcon_PlayerBoy.png'} alt={profile.playerInfo.profilePictureUrl ? 'Traveler profile picture' : 'Aether'} onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src='https://enka.network/ui/UI_AvatarIcon_PlayerBoy.png';e.currentTarget.alt='Aether';}} /></div><div><span>TRAVELER PROFILE</span><h2>{profile.playerInfo.nickname || 'Unknown Traveler'}</h2></div></div>
           <div className="profile-stats"><div><span>ADVENTURE RANK</span><b>AR {profile.playerInfo.level || '—'}</b></div><div><span>WORLD LEVEL</span><b>WL {profile.playerInfo.worldLevel ?? '—'}</b></div><div><span>SPIRAL ABYSS</span><b>{profile.playerInfo.abyss || '—'}</b></div></div>
           <div className="profile-meta"><span>{regionByPrefix[String(profile.uid)[0]] || 'UNKNOWN'}</span><span>UID <b>{profile.uid}</b></span></div>
         </> : <>
-          <div className="paimon-art"><img src="https://webstatic-sea.mihoyo.com/ys/event/e20200910-predrawcard-sea/images/paimeng.5b13a1fb.png" alt="Paimon" /></div>
+          <div className="paimon-art profile-empty-art"><img src="https://enka.network/ui/UI_AvatarIcon_PlayerBoy.png" alt="Aether" /></div>
           <div className="paimon-copy"><span className="eyebrow">PAIMON'S ON DUTY</span><h2>No profile loaded yet!</h2><p>Enter a public UID above and Paimon will bring the Traveler's builds here.</p></div>
           <div className="paimon-badge">UID<br/>REQUIRED</div>
         </>}
