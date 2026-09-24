@@ -2,6 +2,15 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 
+const STATPAGLU_QUOTES = [
+  ['“The world remains constant over the centuries. But human life is like the dew at dawn or a bubble rising through water. Transitory.”','Raiden Shogun — The Mortal World'],
+  ['“People say that the moon shines brightest on a moonless night.”','Yae Miko — The Moon'],
+  ['“The wind rises with a gust, and the clouds gather in response.”','Zhongli — About the Wind'],
+  ['“The rain stops, the wind dies down, and the sun comes out.”','Nahida — The Rain'],
+  ['“Every journey has its final day. Don’t rush.”','Zhongli — The Journey'],
+  ['“What does freedom really mean, if demanded of you by a god?”','Venti — About Freedom']
+];
+
 type Stat = { label: string; value: string; rawValue?: number; percent?: boolean; key?: string };
 type Artifact = {
   name: string; setName: string; slot: string; level: number; icon?: string | null;
@@ -95,6 +104,7 @@ export default function Home() {
       </header>
       <section className="hero" id="top">
         <div className="eyebrow">GENSHIN IMPACT • BUILD INSPECTOR</div>
+        <RandomQuote/>
         <div className="hero-grid">
           <div>
             <h1>Your builds.<br/><em>Your stats.</em></h1>
@@ -153,7 +163,7 @@ function CharacterCard({ c, index, onOpen }: { c: Character; index: number; onOp
     <div className="card-view-detail">OPEN BUILD →</div>
   </article>;
 }
-function OstPlayer() {
+function RandomQuote() {\n  const [quote,setQuote]=useState(STATPAGLU_QUOTES[0]);\n  useEffect(()=>{ setQuote(STATPAGLU_QUOTES[Math.floor(Math.random()*STATPAGLU_QUOTES.length)]); },[]);\n  return <div className="voice-line" aria-label="Genshin Impact voice line"><blockquote>{quote[0]}</blockquote><cite>{quote[1]}</cite></div>;\n}\n\nfunction OstPlayer() {
   const [ready,setReady]=useState(false),[playing,setPlaying]=useState(false),[title,setTitle]=useState('GENSHIN OST');
   const playerRef=useRef<any>(null);
   const playlists=['PLdni05PnuscvEM17RtWoy1jraPhumpdjV','PLEtIOnOw_h3G1OmRFImKCN4Q7giTtU9Pu','PL6vhLV1hjE9FYKq2enry6ACfXeyuatAi_','PL6vhLV1hjE9ErikEhF5JxU8eEu2oSMVWG','OLAK5uy_mh7Qj9RzVthPsrRo2w8ouE-xmQHXLGzqs','OLAK5uy_nH3djc02OBm-qDh2ITZcoWxNOkbT2mfmw','OLAK5uy_lf8ZuhoICESI_ZXxd8eWu5tkIegnQG6Jo'];
