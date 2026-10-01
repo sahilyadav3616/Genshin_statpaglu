@@ -5,6 +5,15 @@ const enka = new EnkaNetwork({
   userAgent: 'Genshin-StatPaglu-Next/1.0'
 });
 
+// The wrapper refreshes its character/localization assets asynchronously.
+// Wait for that refresh before resolving IDs so newly released characters
+// (for example avatarId 10000140 / Vodyanitsa) are not treated as unknown.
+const assetsReady = enka.assetsUpdater
+  ? enka.assetsUpdater.fetchAssets(true).catch((error) => {
+      console.warn('[StatPaglu] Enka asset refresh failed:', error?.message || error);
+    })
+  : Promise.resolve();
+
 const FIGHT = {
   HP: 2, ATK: 5, DEF: 8, EM: 28, CRIT: 20, CRIT_DMG: 22, ER: 23,
   PYRO: 40, ELECTRO: 41, HYDRO: 42, DENDRO: 43, ANEMO: 44, GEO: 45, CRYO: 46
@@ -245,6 +254,7 @@ function resolveArtifactMeta(rawArtifact) {
 }
 
 async function buildProfile(uid){
+  await assetsReady;
   const upstream=await fetch(`https://enka.network/api/uid/${uid}`,{headers:{'User-Agent':'Genshin-StatPaglu/9.2.0','Accept':'application/json'}});
   const body=await upstream.text();let raw;try{raw=JSON.parse(body)}catch{throw new Error(`Enka returned invalid JSON (HTTP ${upstream.status})`)}
   if(!upstream.ok){const e=new Error(raw?.error||raw?.message||`Enka request failed (${upstream.status})`);e.status=upstream.status;throw e}
