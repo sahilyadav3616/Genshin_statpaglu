@@ -177,16 +177,97 @@ function serializeCharacter(raw,meta={}){
   const artifacts=ra.map((x,i)=>artifact(x,em.artifacts[i]||{})), weap=rw?weapon(rw,em.weapon):null, stats=getFinalStats(raw);
   const artifactTotals={};for(const a of artifacts){if(a.mainStat.key)artifactTotals[a.mainStat.key]=(artifactTotals[a.mainStat.key]||0)+a.mainStat.rawValue;for(const s of a.substats)artifactTotals[s.key]=(artifactTotals[s.key]||0)+s.rawValue}
   const baseHP=rawFight(raw,1),baseATK=rawFight(raw,4),baseDEF=rawFight(raw,7),final=Object.fromEntries(stats.map(s=>[s.label,s.rawValue])),weaponBase=Number(weap?.baseAttack||0);
-  return {id:Number(raw?.avatarId||meta.id||0),name:str(meta.name||meta.characterData?.name||`Character ${raw?.avatarId||''}`),level:Number(raw?.propMap?.['4001']?.val??meta.level??1),image:image(meta),constellation:Array.isArray(raw?.talentIdList)?raw.talentIdList.length:0,weapon:weap,artifacts,talents:talents(raw,meta),stats,breakdown:{baseCharacter:{HP:baseHP,ATK:baseATK,DEF:baseDEF},bonus:{HP:Math.max(0,(final.HP||0)-baseHP),ATK:Math.max(0,(final.ATK||0)-baseATK-weaponBase),DEF:Math.max(0,(final.DEF||0)-baseDEF)},weapon:{baseAttack:weaponBase,stats:weap?.stats||[]},combinedBaseATK:baseATK+weaponBase,artifacts:artifactTotals,final}};
+  return {id:Number(raw?.avatarId||meta.id||0),name:str(meta.name||meta.characterData?.name||`Character ${raw?.avatarId||''}`),level:Number(raw?.propMap?.['4001']?.ival ?? raw?.propMap?.['4001']?.val ?? meta.level ?? 1),image:image(meta),constellation:Array.isArray(raw?.talentIdList)?raw.talentIdList.length:0,weapon:weap,artifacts,talents:talents(raw,meta),stats,breakdown:{baseCharacter:{HP:baseHP,ATK:baseATK,DEF:baseDEF},bonus:{HP:Math.max(0,(final.HP||0)-baseHP),ATK:Math.max(0,(final.ATK||0)-baseATK-weaponBase),DEF:Math.max(0,(final.DEF||0)-baseDEF)},weapon:{baseAttack:weaponBase,stats:weap?.stats||[]},combinedBaseATK:baseATK+weaponBase,artifacts:artifactTotals,final}};
 }
+
+function resolveAsset(filename) {
+  if (!filename) return null;
+  try { return enka.assets.getAssetPath(filename); }
+  catch (_) { return `https://enka.network/ui/${String(filename).replace(/\.png$/,'')}.png`; }
+}
+
+function resolveCharacterMeta(raw) {
+  const id = Number(raw?.avatarId || 0);
+  if (!id) return {};
+  try {
+    const depot = Number(raw?.skillDepotId || 0);
+    const character = enka.assets.characters.getById(id, depot || undefined);
+    return {
+      id: character.id,
+      name: enka.assets.characters.getName(character, 'EN'),
+      level: Number(raw?.propMap?.['4001']?.ival ?? raw?.propMap?.['4001']?.val ?? 1),
+      icons: {
+        avatar: resolveAsset(character.iconName),
+        side: resolveAsset(character.sideIconName),
+        gacha: resolveAsset(character.gachaIcon)
+      }
+    };
+  } catch (_) {
+    return {};
+  }
+}
+
+function resolveWeaponMeta(rawWeapon) {
+  const flat = rawWeapon?.flat || {};
+  const hash = Number(flat.nameTextMapHash);
+  const icon = flat.icon;
+  let name = null;
+  try {
+    if (Number.isFinite(hash)) name = enka.assets.weapons.getName(hash, 'EN');
+  } catch (_) {}
+  return {
+    name: name || null,
+    icon: resolveAsset(icon),
+    weaponStats: flat.weaponStats || []
+  };
+}
+
+function resolveArtifactMeta(rawArtifact) {
+  const flat = rawArtifact?.flat || {};
+  const nameHash = Number(flat.nameTextMapHash);
+  const setHash = Number(flat.setNameTextMapHash);
+  let name = null;
+  let setName = null;
+  try {
+    if (Number.isFinite(nameHash)) name = enka.assets.reliquaries.getName(nameHash, 'EN');
+  } catch (_) {}
+  try {
+    if (Number.isFinite(setHash)) setName = enka.assets.reliquarySets.getName(setHash, 'EN');
+  } catch (_) {}
+  return {
+    name: name || null,
+    setName: setName || null,
+    icon: resolveAsset(flat.icon),
+    slot: flat.equipType,
+    mainStats: flat.reliquaryMainstat,
+    subStats: flat.reliquarySubstats || []
+  };
+}
+
 async function buildProfile(uid){
-  const upstream=await fetch(`https://enka.network/api/uid/${uid}`,{headers:{'User-Agent':'Genshin-StatPaglu-Next/1.0','Accept':'application/json'}});
+  const upstream=await fetch(`https://enka.network/api/uid/${uid}`,{headers:{'User-Agent':'Genshin-StatPaglu/9.2.0','Accept':'application/json'}});
   const body=await upstream.text();let raw;try{raw=JSON.parse(body)}catch{throw new Error(`Enka returned invalid JSON (HTTP ${upstream.status})`)}
   if(!upstream.ok){const e=new Error(raw?.error||raw?.message||`Enka request failed (${upstream.status})`);e.status=upstream.status;throw e}
-  let wrapped=null;try{wrapped=await enka.fetchUser(Number(uid))}catch{}
-  const metaById=new Map((wrapped?.characters||[]).map(c=>[Number(c?.id||c?.avatarId||c?.characterData?.id),c]));
-  const chars=(raw.avatarInfoList||[]).map(a=>serializeCharacter(a,metaById.get(Number(a.avatarId))||{}));
+
+  const chars=(raw.avatarInfoList||[]).map(a=>{
+    const meta=resolveCharacterMeta(a);
+    const eq=Array.isArray(a?.equipList)?a.equipList:[];
+    const weaponRaw=eq.find(x=>x?.flat?.itemType==='ITEM_WEAPON');
+    const artifactRaw=eq.filter(x=>x?.flat?.itemType==='ITEM_RELIQUARY');
+    meta.weapon=weaponRaw?resolveWeaponMeta(weaponRaw):null;
+    meta.reliquaries=artifactRaw.map(resolveArtifactMeta);
+    return serializeCharacter(a,meta);
+  });
+
   const p=raw.playerInfo||{};
-  return {uid,playerInfo:{nickname:p.nickname||wrapped?.player?.username||wrapped?.player?.nickname||'Traveler',level:Number(p.level||p.adventureRank||wrapped?.player?.levels?.rank||0),worldLevel:Number(p.worldLevel??wrapped?.player?.levels?.world??0),abyss:p.towerFloorIndex?`${p.towerFloorIndex}-${p.towerLevelIndex||''}`:null},characters:chars};
-}
-module.exports={buildProfile,getFinalStats,serializeCharacter,normalizeRawWeapon:weapon,normalizeRawArtifact:artifact};
+  return {
+    uid,
+    playerInfo:{
+      nickname:p.nickname||'Traveler',
+      level:Number(p.level||0),
+      worldLevel:Number(p.worldLevel??0),
+      abyss:p.towerFloorIndex?`${p.towerFloorIndex}-${p.towerLevelIndex||''}`:null
+    },
+    characters:chars
+  };
+}module.exports={buildProfile,getFinalStats,serializeCharacter,normalizeRawWeapon:weapon,normalizeRawArtifact:artifact};
