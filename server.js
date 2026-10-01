@@ -39,6 +39,15 @@ const enka = new EnkaNetwork({
   userAgent: 'Genshin-StatPaglu/9.2.0 (local build viewer)'
 });
 
+// The wrapper refreshes its character/localization assets asynchronously.
+// Wait for that refresh before resolving IDs so newly released characters
+// (for example avatarId 10000140 / Vodyanitsa) are not treated as unknown.
+const assetsReady = enka.assetsUpdater
+  ? enka.assetsUpdater.fetchAssets(true).catch((error) => {
+      console.warn('[StatPaglu] Enka asset refresh failed:', error?.message || error);
+    })
+  : Promise.resolve();
+
 const cache = new Map();
 const TTL_MS = 60 * 1000;
 
@@ -686,6 +695,7 @@ function resolveArtifactMeta(rawArtifact) {
 }
 
 async function buildProfile(uid) {
+  await assetsReady;
   const raw = await fetchRaw(uid);
   const avatars = Array.isArray(raw.avatarInfoList) ? raw.avatarInfoList : [];
 
