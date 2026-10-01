@@ -600,7 +600,7 @@ function serializeCharacter(raw, meta) {
   return {
     id,
     name: getStr(meta?.name || meta?.characterData?.name || `Character ${id}`),
-    level: Number(raw?.propMap?.['4001']?.val ?? raw?.propMap?.[4001]?.val ?? meta?.level ?? 1),
+    level: Number(raw?.propMap?.['4001']?.ival ?? raw?.propMap?.['4001']?.val ?? meta?.level ?? 1),
     image: characterImageFromMetadata(meta),
     constellation: constellationCount(raw),
     weapon,
@@ -626,30 +626,91 @@ async function fetchRaw(uid) {
   return data;
 }
 
-async function buildProfile(uid) {
-  // Raw API is authoritative for character stats; wrapper metadata is used only to enrich names/assets/equipment when needed.
-  const raw = await fetchRaw(uid);
-  let wrapped = null;
-  try { wrapped = await enka.fetchUser(Number(uid)); } catch (_) { /* metadata fallback only */ }
 
-  const wrappedChars = wrapped?.characters || [];
-  const metaById = new Map(wrappedChars.map(c => [Number(c?.id || c?.avatarId || c?.characterData?.id), c]));
+function resolveAsset(filename) {
+  if (!filename) return null;
+  try { return enka.assets.getAssetPath(filename); }
+  catch (_) { return `https://enka.network/ui/${String(filename).replace(/\.png$/,'')}.png`; }
+}
+
+function resolveCharacterMeta(raw) {
+  const id = Number(raw?.avatarId || 0);
+  if (!id) return {};
+  try {
+    const depot = Number(raw?.skillDepotId || 0);
+    const character = enka.assets.characters.getById(id, depot || undefined);
+    return {
+      id: character.id,
+      name: enka.assets.characters.getName(character, 'EN'),
+      level: Number(raw?.propMap?.['4001']?.ival ?? raw?.propMap?.['4001']?.val ?? 1),
+      icons: {
+        avatar: resolveAsset(character.iconName),
+        side: resolveAsset(character.sideIconName),
+        gacha: resolveAsset(character.gachaIcon)
+      }
+    };
+  } catch (_) {
+    return {};
+  }
+}
+
+function resolveWeaponMeta(rawWeapon) {
+  const flat = rawWeapon?.flat || {};
+  let name = null;
+  try {
+    const hash = Number(flat.nameTextMapHash);
+    if (Number.isFinite(hash)) name = enka.assets.weapons.getName(hash, 'EN');
+  } catch (_) {}
+  return { name: name || null, icon: resolveAsset(flat.icon), weaponStats: flat.weaponStats || [] };
+}
+
+function resolveArtifactMeta(rawArtifact) {
+  const flat = rawArtifact?.flat || {};
+  let name = null, setName = null;
+  try {
+    const hash = Number(flat.nameTextMapHash);
+    if (Number.isFinite(hash)) name = enka.assets.reliquaries.getName(hash, 'EN');
+  } catch (_) {}
+  try {
+    const hash = Number(flat.setNameTextMapHash);
+    if (Number.isFinite(hash)) setName = enka.assets.reliquarySets.getName(hash, 'EN');
+  } catch (_) {}
+  return {
+    name: name || null,
+    setName: setName || null,
+    icon: resolveAsset(flat.icon),
+    slot: flat.equipType,
+    mainStats: flat.reliquaryMainstat,
+    subStats: flat.reliquarySubstats || []
+  };
+}
+
+async function buildProfile(uid) {
+  const raw = await fetchRaw(uid);
   const avatars = Array.isArray(raw.avatarInfoList) ? raw.avatarInfoList : [];
 
-  const characters = avatars.map(a => serializeCharacter(a, metaById.get(Number(a.avatarId)) || {}));
+  const characters = avatars.map(a => {
+    const meta = resolveCharacterMeta(a);
+    const eq = Array.isArray(a?.equipList) ? a.equipList : [];
+    const weaponRaw = eq.find(x => x?.flat?.itemType === 'ITEM_WEAPON');
+    const artifactRaw = eq.filter(x => x?.flat?.itemType === 'ITEM_RELIQUARY');
+    meta.weapon = weaponRaw ? resolveWeaponMeta(weaponRaw) : null;
+    meta.reliquaries = artifactRaw.map(resolveArtifactMeta);
+    return serializeCharacter(a, meta);
+  });
+
   const p = raw.playerInfo || {};
   return {
     uid,
     playerInfo: {
-      nickname: p.nickname || wrapped?.player?.username || wrapped?.player?.nickname || 'Traveler',
-      level: Number(p.level || p.adventureRank || wrapped?.player?.levels?.rank || 0),
-      worldLevel: Number(p.worldLevel ?? wrapped?.player?.levels?.world ?? 0),
-      abyss: p.towerFloorIndex ? `${p.towerFloorIndex}-${p.towerLevelIndex || ''}` : (wrapped?.player?.abyssFloor ? `${wrapped.player.abyssFloor}-${wrapped.player.abyssChamber || ''}` : null)
+      nickname: p.nickname || 'Traveler',
+      level: Number(p.level || 0),
+      worldLevel: Number(p.worldLevel ?? 0),
+      abyss: p.towerFloorIndex ? `${p.towerFloorIndex}-${p.towerLevelIndex || ''}` : null
     },
     characters
   };
 }
-
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const match = url.pathname.match(/^\/api\/profile\/(\d{8,10})$/);
