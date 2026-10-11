@@ -104,19 +104,19 @@ function closeDetail(){const modal=document.querySelector('#detailModal');modal.
 function buildCardColor(element){return ({anemo:'#72d7b3',geo:'#e6b95e',electro:'#b49aff',dendro:'#a4d86c',hydro:'#65c8f2',pyro:'#ff8b72',cryo:'#a2e5f2'})[element]||'#a99aff';}
 function downloadBuildCard(index){
  const c=currentCharacters[index];if(!c)return;
- const element=characterElement(c),accent=buildCardColor(element),canvas=document.createElement('canvas');canvas.width=1200;canvas.height=630;
+ const element=characterElement(c),accent=buildCardColor(element),canvas=document.createElement('canvas');canvas.width=1200;canvas.height=680;
  const ctx=canvas.getContext('2d');if(!ctx)return;
  const bg=ctx.createLinearGradient(0,0,1200,630);bg.addColorStop(0,'#080d18');bg.addColorStop(.58,'#151c2c');bg.addColorStop(1,'#101b22');ctx.fillStyle=bg;ctx.fillRect(0,0,1200,630);
- ctx.globalAlpha=.18;ctx.fillStyle=accent;ctx.beginPath();ctx.arc(1090,80,290,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=accent;ctx.globalAlpha=.65;ctx.lineWidth=2;ctx.strokeRect(28,28,1144,574);ctx.globalAlpha=1;
+ ctx.globalAlpha=.18;ctx.fillStyle=accent;ctx.beginPath();ctx.arc(1090,80,290,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=accent;ctx.globalAlpha=.65;ctx.lineWidth=2;ctx.strokeRect(28,28,1144,624);ctx.globalAlpha=1;
  ctx.fillStyle=accent;ctx.font='600 20px monospace';ctx.fillText('GENSHIN STATPAGLU  /  CHARACTER BUILD',64,76);
  ctx.fillStyle='#f5f7ff';ctx.font='800 58px Arial, sans-serif';ctx.fillText(String(c.name||'Unknown Character').slice(0,24),64,153);
  ctx.fillStyle='#aeb8ca';ctx.font='500 22px Arial, sans-serif';ctx.fillText((element?element.toUpperCase()+' ELEMENT  ·  ':'')+'LEVEL '+Number(c.level||1)+'  ·  C'+Number(c.constellation||0),66,195);
  ctx.fillStyle=accent;ctx.fillRect(64,222,1072,2);
  const stats=(c.stats||[]).filter(s=>['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'].includes(s.label));
  stats.slice(0,7).forEach((s,i)=>{const col=i%2,row=Math.floor(i/2),x=70+col*540,y=260+row*70;ctx.fillStyle='rgba(255,255,255,.055)';ctx.fillRect(x,y,500,54);ctx.fillStyle='#9da9bd';ctx.font='500 17px Arial, sans-serif';ctx.fillText(String(s.label||'STAT').toUpperCase(),x+16,y+21);ctx.fillStyle='#f5f7ff';ctx.font='700 23px Arial, sans-serif';ctx.fillText(String(s.value||'—').slice(0,22),x+16,y+45);});
- const weapon=c.weapon?String(c.weapon.name||'Unknown weapon')+'  ·  '+Number(c.weapon.rarity||0)+'★  ·  R'+Number(c.weapon.refinement||1):'Weapon data unavailable';ctx.fillStyle='#dce4f4';ctx.font='600 18px Arial, sans-serif';ctx.fillText('WEAPON  '+weapon.slice(0,55),70,520);
- const sets={};(c.artifacts||[]).forEach(a=>{if(a.setName&&a.setName!=='Unknown Set')sets[a.setName]=(sets[a.setName]||0)+1;});const setLine=Object.entries(sets).map(([name,count])=>name+' ×'+count).join('  ·  ')||'Artifact set data unavailable';ctx.fillStyle='#9da9bd';ctx.font='500 16px Arial, sans-serif';ctx.fillText(('ARTIFACTS  '+setLine).slice(0,100),70,553);
- ctx.fillStyle='#8390a5';ctx.font='500 14px monospace';ctx.fillText('PUBLIC SHOWCASE SNAPSHOT  ·  GENSHIN STATPAGLU',70,582);
+ const weapon=c.weapon?String(c.weapon.name||'Unknown weapon')+'  ·  '+Number(c.weapon.rarity||0)+'★  ·  R'+Number(c.weapon.refinement||1):'Weapon data unavailable';ctx.fillStyle='#dce4f4';ctx.font='600 18px Arial, sans-serif';ctx.fillText('WEAPON  '+weapon.slice(0,55),70,555);
+ const sets={};(c.artifacts||[]).forEach(a=>{if(a.setName&&a.setName!=='Unknown Set')sets[a.setName]=(sets[a.setName]||0)+1;});const setLine=Object.entries(sets).map(([name,count])=>name+' ×'+count).join('  ·  ')||'Artifact set data unavailable';ctx.fillStyle='#9da9bd';ctx.font='500 16px Arial, sans-serif';ctx.fillText(('ARTIFACTS  '+setLine).slice(0,100),70,585);
+ ctx.fillStyle='#8390a5';ctx.font='500 14px monospace';ctx.fillText('PUBLIC SHOWCASE SNAPSHOT  ·  GENSHIN STATPAGLU',70,616);
  const filename='statpaglu-'+String(c.name||'build').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png';
  const save=blob=>{if(!blob){const link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();return;}const file=new File([blob],filename,{type:'image/png'});if(navigator.share&&navigator.canShare?.({files:[file]})){navigator.share({files:[file],title:c.name+' build',text:'Build card created with Genshin StatPaglu.'}).catch(err=>{if(err?.name!=='AbortError')downloadBlob(blob,filename);});}else downloadBlob(blob,filename);};
  canvas.toBlob(save,'image/png');
