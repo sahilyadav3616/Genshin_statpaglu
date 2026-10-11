@@ -126,11 +126,24 @@ async function createBuildCard(index){
  ]);
  const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=760;
  const ctx=canvas.getContext('2d');if(!ctx)return null;
- const bg=ctx.createLinearGradient(0,0,1600,760);bg.addColorStop(0,'#080d18');bg.addColorStop(.55,'#151c2c');bg.addColorStop(1,'#101b22');ctx.fillStyle=bg;ctx.fillRect(0,0,1600,760);
- const glow=ctx.createRadialGradient(1360,95,20,1360,95,480);glow.addColorStop(0,accent+'66');glow.addColorStop(1,accent+'00');ctx.fillStyle=glow;ctx.fillRect(900,0,700,560);
+ const bg=ctx.createLinearGradient(0,0,1600,760);bg.addColorStop(0,'#080d18');bg.addColorStop(.42,'#111b2a');bg.addColorStop(1,'#0a1720');ctx.fillStyle=bg;ctx.fillRect(0,0,1600,760);
+ const glow=ctx.createRadialGradient(1360,95,20,1360,95,520);glow.addColorStop(0,accent+'70');glow.addColorStop(1,accent+'00');ctx.fillStyle=glow;ctx.fillRect(850,0,750,590);
+ // Fine aurora ribbons and glass specular streaks add depth without obscuring stats.
+ ctx.save();ctx.globalAlpha=.12;ctx.strokeStyle=accent;ctx.lineWidth=2;
+ for(let j=0;j<3;j++){ctx.beginPath();ctx.moveTo(660+j*28,28);ctx.bezierCurveTo(780+j*35,160,690+j*42,310,835+j*30,430);ctx.stroke();}
+ ctx.restore();
+ ctx.save();ctx.globalAlpha=.13;const sheen=ctx.createLinearGradient(0,26,0,180);sheen.addColorStop(0,'#ffffff');sheen.addColorStop(1,'#ffffff00');ctx.fillStyle=sheen;roundedRect(ctx,26,26,1548,155,24);ctx.fill();ctx.restore();
  // Enka-inspired three-column showcase: portrait, combat stats, and artifact loadout.
  ctx.save();roundedRect(ctx,26,26,1548,708,24);ctx.clip();
- if(portrait){ctx.globalAlpha=.96;drawCoverImage(ctx,portrait,26,26,540,708);ctx.globalAlpha=1;const shade=ctx.createLinearGradient(300,0,610,0);shade.addColorStop(0,'#0b1020aa');shade.addColorStop(1,'#0b1020ff');ctx.fillStyle=shade;ctx.fillRect(280,26,330,708);const bottom=ctx.createLinearGradient(0,360,0,734);bottom.addColorStop(0,'#0b102000');bottom.addColorStop(1,'#0b1020f2');ctx.fillStyle=bottom;ctx.fillRect(26,360,585,374);}
+ if(portrait){
+  // Keep the character artwork bright; only feather the far-right seam into the stats panel.
+  ctx.globalAlpha=1;drawCoverImage(ctx,portrait,26,26,540,708);
+  const seam=ctx.createLinearGradient(440,0,590,0);seam.addColorStop(0,'#0b102000');seam.addColorStop(.58,'#0b102044');seam.addColorStop(1,'#0b1020aa');ctx.fillStyle=seam;ctx.fillRect(440,26,150,708);
+  // A restrained lower vignette supports the name without darkening half the character.
+  const bottom=ctx.createLinearGradient(0,470,0,734);bottom.addColorStop(0,'#0b102000');bottom.addColorStop(1,'#0b1020c9');ctx.fillStyle=bottom;ctx.fillRect(26,470,540,264);
+  // Glass-like highlight along the portrait edge.
+  ctx.strokeStyle='#ffffff30';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(27,48);ctx.lineTo(27,710);ctx.stroke();
+ }
  else{ctx.fillStyle='rgba(255,255,255,.025)';ctx.fillRect(26,26,540,708);ctx.strokeStyle=accent;ctx.globalAlpha=.22;ctx.lineWidth=2;ctx.beginPath();ctx.arc(290,280,150,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(290,280,185,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
  ctx.restore();
  ctx.strokeStyle=accent;ctx.globalAlpha=.75;ctx.lineWidth=2;roundedRect(ctx,26,26,1548,708,24);ctx.stroke();ctx.globalAlpha=1;
@@ -147,7 +160,9 @@ async function createBuildCard(index){
  const chosen=wanted.map(label=>stats.find(s=>s.label===label)).filter(Boolean);
  chosen.forEach((s,i)=>{
   const col=i%2,row=Math.floor(i/2),x=middleX+col*260,y=statY+row*(statH+gapY),w=245;
-  ctx.fillStyle='rgba(255,255,255,.065)';roundedRect(ctx,x,y,w,statH,9);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.075)';roundedRect(ctx,x,y,w,statH,11);ctx.fill();
+  ctx.save();ctx.globalAlpha=.42;ctx.strokeStyle='#ffffff';ctx.lineWidth=1;roundedRect(ctx,x+.5,y+.5,w-1,statH-1,11);ctx.stroke();ctx.restore();
+  const statGlass=ctx.createLinearGradient(x,y,x+w,y+statH);statGlass.addColorStop(0,accent+'18');statGlass.addColorStop(1,'#ffffff02');ctx.fillStyle=statGlass;roundedRect(ctx,x,y,w,statH,11);ctx.fill();
   ctx.fillStyle=accent;ctx.fillRect(x,y,4,statH);
   ctx.fillStyle='#9da9bd';ctx.font='600 13px Arial,sans-serif';ctx.fillText(String(s.label||'STAT').toUpperCase(),x+15,y+26);
   ctx.fillStyle='#f5f7ff';ctx.font='700 26px Arial,sans-serif';ctx.fillText(String(s.value||'—').slice(0,18),x+15,y+59);
@@ -164,8 +179,10 @@ async function createBuildCard(index){
  const rx=1140,rw=405;ctx.fillStyle=accent;ctx.font='600 17px monospace';ctx.fillText('ARTIFACT LOADOUT',rx,66);
  const artifactNames=['FLOWER','PLUME','SANDS','GOBLET','CIRCLET'];
  artifacts.forEach((a,i)=>{
-  const y=88+i*119;ctx.fillStyle='rgba(255,255,255,.065)';roundedRect(ctx,rx,y,rw,105,10);ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.06)';roundedRect(ctx,rx+8,y+8,88,88,8);ctx.fill();
+  const y=88+i*119;ctx.fillStyle='rgba(255,255,255,.075)';roundedRect(ctx,rx,y,rw,105,12);ctx.fill();
+  ctx.save();ctx.strokeStyle='#ffffff24';ctx.lineWidth=1;roundedRect(ctx,rx+.5,y+.5,rw-1,104,12);ctx.stroke();ctx.restore();
+  const artGlass=ctx.createLinearGradient(rx,y,rx+rw,y+105);artGlass.addColorStop(0,accent+'15');artGlass.addColorStop(1,'#ffffff01');ctx.fillStyle=artGlass;roundedRect(ctx,rx,y,rw,105,12);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.075)';roundedRect(ctx,rx+8,y+8,88,88,9);ctx.fill();
   if(artifactImages[i])drawCoverImage(ctx,artifactImages[i],rx+14,y+14,76,76);
   else{ctx.fillStyle=accent;ctx.font='700 22px Arial';ctx.fillText('✧',rx+38,y+58);}
   ctx.fillStyle=accent;ctx.font='700 11px monospace';ctx.fillText(String(a.slot||artifactNames[i]).toUpperCase().slice(0,18),rx+110,y+23);
