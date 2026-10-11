@@ -1,5 +1,19 @@
 const API = location.protocol === 'file:' ? null : '/api/profile/';
 const accents = ['#a88cff','#76d9ff','#e987ff','#f6b36a','#6bdcc5','#ffd76e'];
+const elementAccents = {
+  anemo: '#7ce5bd', geo: '#f2c66d', electro: '#c5a2ff',
+  dendro: '#a8df78', hydro: '#76cfff', pyro: '#ff987c', cryo: '#a5e7f2'
+};
+function characterElement(character) {
+  const raw = character.element ?? character.elementType ?? character.vision?.element ?? character.vision ?? '';
+  const value = typeof raw === 'object' ? (raw.name ?? raw.type ?? raw.element ?? '') : raw;
+  const key = String(value).toLowerCase().trim();
+  const aliases = {
+    anemo: ['anemo','wind'], geo: ['geo','earth'], electro: ['electro','electric'],
+    dendro: ['dendro','grass'], hydro: ['hydro','water'], pyro: ['pyro','fire'], cryo: ['cryo','ice']
+  };
+  return Object.keys(aliases).find(element => aliases[element].some(alias => key === alias || key.includes(alias))) || '';
+}
 const UPI_ID = 'sahilyadav3616.1@oksbi';
 function initUpiSupport(){
   const copyButton=document.querySelector('[data-copy-upi]');
@@ -92,7 +106,10 @@ function renderRoster(filterText){
   if(!filtered.length){roster.innerHTML=`<div class="loading">NO CHARACTERS MATCH “${escapeHTML(filterText.toUpperCase())}”</div>`;return}
   filtered.forEach(({c,i},pos)=>{
     const el=tpl.content.firstElementChild.cloneNode(true), artifacts=c.artifacts||[], talents=c.talents||[];
-    el.style.setProperty('--accent',accents[pos%accents.length]); el.dataset.index=i;
+    const element=characterElement(c);
+    el.style.setProperty('--accent',element ? elementAccents[element] : accents[pos%accents.length]);
+    if(element){el.dataset.element=element;el.querySelector('.element').textContent=element.toUpperCase()+' • CHARACTER BUILD';}
+    el.dataset.index=i;
     el.querySelector('.build-index').textContent=`BUILD ${String(pos+1).padStart(2,'0')}`;
     el.querySelector('.initial').textContent=c.name[0]||'?'; el.querySelector('h3').textContent=c.name;
     el.querySelector('.level').textContent=`LV. ${c.level}`; el.querySelector('.key-stats').innerHTML=statHTML(c.stats||[]);
