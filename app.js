@@ -98,7 +98,54 @@ function openDetail(index){
   modal.classList.remove('hidden');
 }
 function closeDetail(){document.querySelector('#detailModal').classList.add('hidden')}
-function render(data){currentCharacters=data.characters||[];document.querySelector('#filterInput').value='';renderRoster('')}
+const compareMetricLabels = ['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'];
+function populateCompareOptions(){
+  const a=document.querySelector('#compareA'), b=document.querySelector('#compareB');
+  if(!a||!b)return;
+  const previousA=a.value, previousB=b.value;
+  const options=currentCharacters.map((c,i)=>'<option value="'+i+'">'+escapeHTML(c.name)+' · Lv. '+Number(c.level||1)+'</option>').join('');
+  a.innerHTML=options||'<option value="">No showcased characters</option>';
+  b.innerHTML=options||'<option value="">No showcased characters</option>';
+  if(currentCharacters.length>1){
+    a.value=currentCharacters.some((c,i)=>String(i)===previousA)?previousA:'0';
+    b.value=currentCharacters.some((c,i)=>String(i)===previousB)?previousB:'1';
+  }else if(currentCharacters.length){a.value='0';b.value='0';}
+  renderComparison();
+}
+function findStat(character,label){
+  return (character?.stats||[]).find(stat=>String(stat.label||'').toLowerCase()===label.toLowerCase())||null;
+}
+function comparisonNumber(stat){
+  if(!stat)return 0;
+  const value=Number(stat.rawValue);
+  if(Number.isFinite(value))return value;
+  return Number(String(stat.value||'').replace(/,/g,'').replace('%',''))||0;
+}
+function comparisonDeltaText(a,b,percent){
+  const delta=b-a;
+  if(percent)return (delta===0?'':delta>0?'+':'−')+Math.abs(delta*100).toFixed(1)+' pp';
+  return (delta===0?'':delta>0?'+':'−')+Math.abs(delta).toLocaleString(undefined,{maximumFractionDigits:1});
+}
+function renderComparison(){
+  const output=document.querySelector('#compareResults'), aSelect=document.querySelector('#compareA'), bSelect=document.querySelector('#compareB');
+  if(!output||!aSelect||!bSelect)return;
+  const a=currentCharacters[Number(aSelect.value)], b=currentCharacters[Number(bSelect.value)];
+  if(!a||!b){output.innerHTML='<p class="compare-empty">Load a public UID to start comparing builds.</p>';return;}
+  if(a===b){output.innerHTML='<p class="compare-empty">Choose two different characters to compare their builds.</p>';return;}
+  const rows=compareMetricLabels.map(label=>{
+    const sa=findStat(a,label), sb=findStat(b,label);
+    if(!sa&&!sb)return '';
+    const av=comparisonNumber(sa), bv=comparisonNumber(sb), max=Math.max(av,bv,1);
+    const wa=Math.max(0,Math.min(100,av/max*100)), wb=Math.max(0,Math.min(100,bv/max*100));
+    const delta=av===0?(bv===0?'—':'New stat'):((bv-av)/Math.abs(av)*100);
+    const trend=av===bv?'even':bv>av?'up':'down';
+    const deltaLabel=typeof delta==='number'?(delta===0?'EVEN':(delta>0?'+':'−')+Math.abs(delta).toFixed(1)+'%'):delta;
+    return '<div class="compare-row"><div class="compare-row-head"><span>'+escapeHTML(label)+'</span><span class="compare-delta '+trend+'">'+escapeHTML(deltaLabel)+'</span></div><div class="compare-values"><b>'+escapeHTML(sa?.value||'—')+'</b><b>'+escapeHTML(sb?.value||'—')+'</b></div><div class="compare-bars"><div class="compare-track"><span class="compare-bar bar-a" style="--bar-width:'+wa+'%"></span></div><div class="compare-track"><span class="compare-bar bar-b" style="--bar-width:'+wb+'%"></span></div></div></div>';
+  }).filter(Boolean).join('');
+  output.innerHTML='<div class="compare-legend"><span class="legend-a"><i></i>'+escapeHTML(a.name)+'</span><span class="legend-b"><i></i>'+escapeHTML(b.name)+'</span></div><div class="compare-grid">'+(rows||'<p class="compare-empty">These characters do not have comparable stats in the current data.</p>')+'</div>';
+  requestAnimationFrame(()=>output.querySelectorAll('.compare-bar').forEach(bar=>bar.classList.add('is-visible')));
+}
+function render(data){currentCharacters=data.characters||[];document.querySelector('#filterInput').value='';populateCompareOptions();renderRoster('')}
 function renderRoster(filterText){
   const roster=document.querySelector('#roster'); roster.innerHTML='';
   const tpl=document.querySelector('#cardTemplate'); const needle=filterText.trim().toLowerCase();
@@ -137,6 +184,9 @@ async function load(uid){
 document.querySelector('#uidForm').addEventListener('submit',e=>{e.preventDefault();const uid=document.querySelector('#uidInput').value.replace(/\D/g,'');if(uid.length<8)return;load(uid)});
 document.querySelector('#reload').addEventListener('click',()=>{const uid=document.querySelector('#uidInput').value.replace(/\D/g,'');if(uid.length<8)return;load(uid)});
 document.querySelector('#filterInput').addEventListener('input',e=>renderRoster(e.target.value));
+document.querySelector('#compareButton')?.addEventListener('click',renderComparison);
+document.querySelector('#compareA')?.addEventListener('change',renderComparison);
+document.querySelector('#compareB')?.addEventListener('change',renderComparison);
 document.querySelector('#detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal'||e.target.closest('.detail-close'))closeDetail()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
 // Do not load a profile automatically; the UID field starts empty.
@@ -156,6 +206,14 @@ document.querySelector('#ostNext')?.addEventListener('click',()=>{if(ostPlayer&&
 
 
 (function initAyakaSnow(){const f=document.querySelector('#frostField');if(!f)return;f.innerHTML='';[[10,18],[89,17],[7,48],[93,50],[15,82],[85,84],[49,9],[51,91],[25,35],[76,64],[32,73],[68,29],[18,60],[83,36]].forEach(([x,y],i)=>{const s=document.createElement('span');s.className='frost-snowflake';s.style.left=x+'%';s.style.top=y+'%';s.style.setProperty('--dur',(8+(i%4)*1.7)+'s');s.style.setProperty('--delay',(-i*.9)+'s');s.innerHTML='<span class="arm"></span><i></i>';f.appendChild(s)})})();
+(function initAmbience(){
+  const button=document.querySelector('#ambienceToggle');if(!button)return;
+  const key='statpaglu-ambience';
+  const sync=()=>{const enabled=!document.body.classList.contains('ambient-off');button.textContent=enabled?'✦ FX ON':'✧ FX OFF';button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?'Turn animated background effects off':'Turn animated background effects on');};
+  if(localStorage.getItem(key)==='off')document.body.classList.add('ambient-off');
+  sync();
+  button.addEventListener('click',()=>{document.body.classList.toggle('ambient-off');localStorage.setItem(key,document.body.classList.contains('ambient-off')?'off':'on');sync();});
+})();
 (function initTheme(){const b=document.querySelector('#themeToggle');if(!b)return;if(localStorage.getItem('statpaglu-theme')==='light')document.body.classList.add('light-mode');const sync=()=>{const light=document.body.classList.contains('light-mode');b.innerHTML=light?'☀ <span>LIGHT</span>':'☾ <span>DARK</span>';b.setAttribute('aria-pressed',String(light));b.setAttribute('aria-label',light?'Switch to dark mode':'Switch to light mode')};sync();b.onclick=()=>{document.body.classList.toggle('light-mode');localStorage.setItem('statpaglu-theme',document.body.classList.contains('light-mode')?'light':'dark');sync()}})();
 // Do not auto-load any UID on startup. The UID input must remain empty until the user submits one.
 window.addEventListener('load',()=>{
