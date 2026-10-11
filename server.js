@@ -652,6 +652,7 @@ function resolveCharacterMeta(raw) {
     return {
       id: character.id,
       name: enka.assets.characters.getName(character, 'EN'),
+      element: character.elementType ?? character.element ?? character.vision ?? null,
       level: Number(raw?.propMap?.['4001']?.ival ?? raw?.propMap?.['4001']?.val ?? 1),
       icons: {
         avatar: resolveAsset(character.iconName),
