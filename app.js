@@ -102,49 +102,97 @@ function openDetail(index){
 }
 function closeDetail(){const modal=document.querySelector('#detailModal');modal.classList.add('hidden');modal.dataset.characterIndex='';}
 function buildCardColor(element){return ({anemo:'#72d7b3',geo:'#e6b95e',electro:'#b49aff',dendro:'#a4d86c',hydro:'#65c8f2',pyro:'#ff8b72',cryo:'#a2e5f2'})[element]||'#a99aff';}
-function createBuildCard(index){
- const c=currentCharacters[index];if(!c)return null;
- const element=characterElement(c),accent=buildCardColor(element),canvas=document.createElement('canvas');canvas.width=1200;canvas.height=680;
- const ctx=canvas.getContext('2d');if(!ctx)return null;
- const bg=ctx.createLinearGradient(0,0,1200,680);bg.addColorStop(0,'#080d18');bg.addColorStop(.55,'#151c2c');bg.addColorStop(1,'#101b22');ctx.fillStyle=bg;ctx.fillRect(0,0,1200,680);
- // Layered elemental glow, geometric emblem and fine frame.
- const glow=ctx.createRadialGradient(1010,120,10,1010,120,410);glow.addColorStop(0,accent+'55');glow.addColorStop(1,accent+'00');ctx.fillStyle=glow;ctx.fillRect(560,0,640,500);
- ctx.save();ctx.translate(1030,126);ctx.rotate(Math.PI/4);ctx.strokeStyle=accent;ctx.globalAlpha=.2;ctx.lineWidth=3;ctx.strokeRect(-155,-155,310,310);ctx.strokeRect(-120,-120,240,240);ctx.restore();ctx.globalAlpha=1;
- ctx.strokeStyle=accent;ctx.globalAlpha=.65;ctx.lineWidth=2;ctx.strokeRect(28,28,1144,624);ctx.globalAlpha=1;
- ctx.fillStyle=accent;ctx.fillRect(52,53,5,54);ctx.font='600 19px monospace';ctx.fillText('GENSHIN STATPAGLU',72,70);ctx.fillStyle='#8995ab';ctx.font='500 13px monospace';ctx.fillText('/ CHARACTER BUILD CARD',72,94);
- ctx.fillStyle='#f5f7ff';ctx.font='800 62px Arial, sans-serif';ctx.fillText(String(c.name||'Unknown Character').slice(0,22),64,174);
- ctx.fillStyle=accent;ctx.font='700 18px Arial, sans-serif';ctx.fillText((element?element.toUpperCase()+' ELEMENT':'CHARACTER BUILD'),68,211);
- ctx.fillStyle='#aeb8ca';ctx.font='500 19px Arial, sans-serif';ctx.fillText('LEVEL '+Number(c.level||1)+'    ·    CONSTELLATION C'+Number(c.constellation||0),68,243);
- ctx.fillStyle=accent;ctx.globalAlpha=.8;ctx.fillRect(64,265,1072,2);ctx.globalAlpha=1;
- const stats=(c.stats||[]).filter(s=>['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'].includes(s.label));
- stats.slice(0,7).forEach((s,i)=>{
-   const col=i%2,row=Math.floor(i/2),x=66+col*540,y=286+row*68,w=510,h=56;
-   ctx.fillStyle='rgba(255,255,255,.055)';ctx.fillRect(x,y,w,h);ctx.fillStyle=accent;ctx.globalAlpha=.85;ctx.fillRect(x,y,3,h);ctx.globalAlpha=1;
-   ctx.fillStyle='#9da9bd';ctx.font='600 14px Arial, sans-serif';ctx.fillText(String(s.label||'STAT').toUpperCase(),x+16,y+21);
-   ctx.fillStyle='#f5f7ff';ctx.font='700 24px Arial, sans-serif';ctx.fillText(String(s.value||'—').slice(0,22),x+16,y+46);
+function loadCardImage(url){
+ return new Promise(resolve=>{
+  if(!url){resolve(null);return;}
+  const image=new Image();image.crossOrigin='anonymous';
+  image.onload=()=>resolve(image);image.onerror=()=>resolve(null);image.src=url;
  });
- const weapon=c.weapon?String(c.weapon.name||'Unknown weapon')+'  ·  '+Number(c.weapon.rarity||0)+'★  ·  R'+Number(c.weapon.refinement||1):'Weapon data unavailable';
- ctx.fillStyle=accent;ctx.font='700 13px monospace';ctx.fillText('WEAPON',68,535);ctx.fillStyle='#e6ebf5';ctx.font='600 17px Arial, sans-serif';ctx.fillText(weapon.slice(0,62),155,535);
- const sets={};(c.artifacts||[]).forEach(a=>{if(a.setName&&a.setName!=='Unknown Set')sets[a.setName]=(sets[a.setName]||0)+1;});
- const setLine=Object.entries(sets).map(([name,count])=>name+' ×'+count).join('  ·  ')||'Artifact set data unavailable';
- ctx.fillStyle=accent;ctx.font='700 13px monospace';ctx.fillText('ARTIFACTS',68,568);ctx.fillStyle='#b8c2d3';ctx.font='500 15px Arial, sans-serif';ctx.fillText(setLine.slice(0,90),155,568);
- ctx.fillStyle='#77849a';ctx.font='500 12px monospace';ctx.fillText('PUBLIC SHOWCASE SNAPSHOT  ·  STATPAGLU',68,615);
- return {canvas,character:c,filename:'statpaglu-'+String(c.name||'build').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png'};
 }
-function downloadBuildCard(index){
- const card=createBuildCard(index);if(!card)return;
- card.canvas.toBlob(blob=>{if(blob)downloadBlob(blob,card.filename);else{const link=document.createElement('a');link.download=card.filename;link.href=card.canvas.toDataURL('image/png');link.click();}},'image/png');
+function roundedRect(ctx,x,y,w,h,r){
+ const radius=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+radius,y);ctx.arcTo(x+w,y,x+w,y+h,radius);ctx.arcTo(x+w,y+h,x,y+h,radius);ctx.arcTo(x,y+h,x,y,radius);ctx.arcTo(x,y,x+w,y,radius);ctx.closePath();
 }
-function shareBuildCard(index){
- const card=createBuildCard(index);if(!card)return;
- card.canvas.toBlob(async blob=>{
+function drawCoverImage(ctx,img,x,y,w,h){
+ if(!img)return;
+ const scale=Math.max(w/img.width,h/img.height),sw=w/scale,sh=h/scale,sx=(img.width-sw)/2,sy=(img.height-sh)/2;
+ ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+}
+async function createBuildCard(index){
+ const c=currentCharacters[index];if(!c)return null;
+ const element=characterElement(c),accent=buildCardColor(element),artifacts=(c.artifacts||[]).slice(0,5);
+ // Load artwork with CORS enabled; if a host blocks canvas access, the card remains exportable without that image.
+ const [portrait,weaponImage,...artifactImages]=await Promise.all([
+  loadCardImage(c.image),loadCardImage(c.weapon?.icon),...artifacts.map(a=>loadCardImage(a.icon))
+ ]);
+ const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=760;
+ const ctx=canvas.getContext('2d');if(!ctx)return null;
+ const bg=ctx.createLinearGradient(0,0,1600,760);bg.addColorStop(0,'#080d18');bg.addColorStop(.55,'#151c2c');bg.addColorStop(1,'#101b22');ctx.fillStyle=bg;ctx.fillRect(0,0,1600,760);
+ const glow=ctx.createRadialGradient(1360,95,20,1360,95,480);glow.addColorStop(0,accent+'66');glow.addColorStop(1,accent+'00');ctx.fillStyle=glow;ctx.fillRect(900,0,700,560);
+ // Enka-inspired three-column showcase: portrait, combat stats, and artifact loadout.
+ ctx.save();roundedRect(ctx,26,26,1548,708,24);ctx.clip();
+ if(portrait){ctx.globalAlpha=.96;drawCoverImage(ctx,portrait,26,26,540,708);ctx.globalAlpha=1;const shade=ctx.createLinearGradient(300,0,610,0);shade.addColorStop(0,'#0b1020aa');shade.addColorStop(1,'#0b1020ff');ctx.fillStyle=shade;ctx.fillRect(280,26,330,708);const bottom=ctx.createLinearGradient(0,360,0,734);bottom.addColorStop(0,'#0b102000');bottom.addColorStop(1,'#0b1020f2');ctx.fillStyle=bottom;ctx.fillRect(26,360,585,374);}
+ else{ctx.fillStyle='rgba(255,255,255,.025)';ctx.fillRect(26,26,540,708);ctx.strokeStyle=accent;ctx.globalAlpha=.22;ctx.lineWidth=2;ctx.beginPath();ctx.arc(290,280,150,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(290,280,185,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
+ ctx.restore();
+ ctx.strokeStyle=accent;ctx.globalAlpha=.75;ctx.lineWidth=2;roundedRect(ctx,26,26,1548,708,24);ctx.stroke();ctx.globalAlpha=1;
+ // Brand / character identity over the artwork.
+ ctx.fillStyle='#f2d28a';ctx.font='700 22px Arial,sans-serif';ctx.fillText('★★★★★',58,66);
+ ctx.fillStyle=accent;ctx.font='600 17px monospace';ctx.textAlign='right';ctx.fillText('GENSHIN STATPAGLU',525,66);ctx.textAlign='left';
+ ctx.fillStyle='#dce4f4';ctx.font='700 47px Arial,sans-serif';ctx.fillText(String(c.name||'Character').slice(0,20),58,610);
+ ctx.fillStyle=accent;ctx.font='700 17px Arial,sans-serif';ctx.fillText((element?element.toUpperCase()+'  ·  ':'')+'CHARACTER BUILD',60,644);
+ ctx.fillStyle='#d0d8e8';ctx.font='500 18px monospace';ctx.fillText('LV. '+Number(c.level||1)+'   ·   C'+Number(c.constellation||0),60,679);
+ // Middle: key combat stats, laid out like an in-game profile.
+ const middleX=600,middleW=510,statY=94,statH=82,gapY=13;
+ ctx.fillStyle=accent;ctx.font='600 17px monospace';ctx.fillText('COMBAT ATTRIBUTES',middleX,66);
+ const stats=(c.stats||[]),wanted=['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'];
+ const chosen=wanted.map(label=>stats.find(s=>s.label===label)).filter(Boolean);
+ chosen.forEach((s,i)=>{
+  const col=i%2,row=Math.floor(i/2),x=middleX+col*260,y=statY+row*(statH+gapY),w=245;
+  ctx.fillStyle='rgba(255,255,255,.065)';roundedRect(ctx,x,y,w,statH,9);ctx.fill();
+  ctx.fillStyle=accent;ctx.fillRect(x,y,4,statH);
+  ctx.fillStyle='#9da9bd';ctx.font='600 13px Arial,sans-serif';ctx.fillText(String(s.label||'STAT').toUpperCase(),x+15,y+26);
+  ctx.fillStyle='#f5f7ff';ctx.font='700 26px Arial,sans-serif';ctx.fillText(String(s.value||'—').slice(0,18),x+15,y+59);
+ });
+ // Weapon module, with icon if allowed by the source's CORS policy.
+ const wx=600,wy=466,ww=510;ctx.strokeStyle='rgba(255,255,255,.13)';ctx.beginPath();ctx.moveTo(wx,wy);ctx.lineTo(wx+ww,wy);ctx.stroke();
+ ctx.fillStyle=accent;ctx.font='700 14px monospace';ctx.fillText('EQUIPPED WEAPON',wx,wy+27);
+ ctx.fillStyle='rgba(255,255,255,.07)';roundedRect(ctx,wx,wy+42,74,74,12);ctx.fill();
+ if(weaponImage)drawCoverImage(ctx,weaponImage,wx+8,wy+50,58,58);
+ else{ctx.fillStyle=accent;ctx.font='700 27px Arial';ctx.fillText('✦',wx+25,wy+88);}
+ ctx.fillStyle='#f0f3fa';ctx.font='700 17px Arial,sans-serif';ctx.fillText(String(c.weapon?.name||'Weapon data unavailable').slice(0,32),wx+90,wy+70);
+ ctx.fillStyle='#aeb8ca';ctx.font='500 15px monospace';ctx.fillText(c.weapon?String(c.weapon.rarity||'')+'★   ·   LV. '+Number(c.weapon.level||1)+'   ·   R'+Number(c.weapon.refinement||1):'—',wx+90,wy+99);
+ // Right: five artifact tiles with main stat, level and set label.
+ const rx=1140,rw=405;ctx.fillStyle=accent;ctx.font='600 17px monospace';ctx.fillText('ARTIFACT LOADOUT',rx,66);
+ const artifactNames=['FLOWER','PLUME','SANDS','GOBLET','CIRCLET'];
+ artifacts.forEach((a,i)=>{
+  const y=88+i*119;ctx.fillStyle='rgba(255,255,255,.065)';roundedRect(ctx,rx,y,rw,105,10);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.06)';roundedRect(ctx,rx+8,y+8,88,88,8);ctx.fill();
+  if(artifactImages[i])drawCoverImage(ctx,artifactImages[i],rx+14,y+14,76,76);
+  else{ctx.fillStyle=accent;ctx.font='700 22px Arial';ctx.fillText('✧',rx+38,y+58);}
+  ctx.fillStyle=accent;ctx.font='700 11px monospace';ctx.fillText(String(a.slot||artifactNames[i]).toUpperCase().slice(0,18),rx+110,y+23);
+  ctx.fillStyle='#f0f3fa';ctx.font='700 17px Arial,sans-serif';ctx.fillText(String(a.mainStat?.label||'Artifact').slice(0,24),rx+110,y+49);
+  ctx.fillStyle='#dce4f4';ctx.font='700 20px Arial,sans-serif';ctx.fillText(String(a.mainStat?.value||('+'+Number(a.level||0))).slice(0,17),rx+110,y+76);
+  ctx.fillStyle='#8995ab';ctx.font='500 12px monospace';ctx.fillText('+'+Number(a.level||0)+'  ·  '+String(a.setName||'').slice(0,22),rx+110,y+94);
+ });
+ ctx.fillStyle='#77849a';ctx.font='500 12px monospace';ctx.fillText('PUBLIC SHOWCASE SNAPSHOT  ·  STATPAGLU',600,713);
+ ctx.textAlign='right';ctx.fillStyle=accent;ctx.fillText('BUILD CARD  /  '+String(c.name||'').toUpperCase(),1540,713);ctx.textAlign='left';
+ const filename='statpaglu-'+String(c.name||'build').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png';
+ return {canvas,character:c,filename};
+}
+async function downloadBuildCard(index){
+ const card=await createBuildCard(index);if(!card)return;
+ try{card.canvas.toBlob(blob=>{if(blob)downloadBlob(blob,card.filename);else{const link=document.createElement('a');link.download=card.filename;link.href=card.canvas.toDataURL('image/png');link.click();}},'image/png');}
+ catch{const link=document.createElement('a');link.download=card.filename;link.href=card.canvas.toDataURL('image/png');link.click();}
+}
+async function shareBuildCard(index){
+ const card=await createBuildCard(index);if(!card)return;
+ try{card.canvas.toBlob(async blob=>{
    if(!blob){downloadBuildCard(index);return;}
    const file=new File([blob],card.filename,{type:'image/png'});
    if(navigator.share&&navigator.canShare?.({files:[file]})){
      try{await navigator.share({files:[file],title:card.character.name+' build',text:'Build card created with Genshin StatPaglu.'});}
      catch(err){if(err?.name!=='AbortError')downloadBlob(blob,card.filename);}
    }else downloadBlob(blob,card.filename);
- },'image/png');
+ },'image/png');}catch{downloadBuildCard(index);}
 }
 function downloadBlob(blob,filename){const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 const compareMetricLabels = ['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'];
