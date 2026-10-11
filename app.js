@@ -185,10 +185,18 @@ async function createBuildCard(index){
   ctx.fillStyle='rgba(255,255,255,.075)';roundedRect(ctx,rx+8,y+8,88,88,9);ctx.fill();
   if(artifactImages[i])drawCoverImage(ctx,artifactImages[i],rx+14,y+14,76,76);
   else{ctx.fillStyle=accent;ctx.font='700 22px Arial';ctx.fillText('✧',rx+38,y+58);}
-  ctx.fillStyle=accent;ctx.font='700 11px monospace';ctx.fillText(String(a.slot||artifactNames[i]).toUpperCase().slice(0,18),rx+110,y+23);
-  ctx.fillStyle='#f0f3fa';ctx.font='700 17px Arial,sans-serif';ctx.fillText(String(a.mainStat?.label||'Artifact').slice(0,24),rx+110,y+49);
-  ctx.fillStyle='#dce4f4';ctx.font='700 20px Arial,sans-serif';ctx.fillText(String(a.mainStat?.value||('+'+Number(a.level||0))).slice(0,17),rx+110,y+76);
-  ctx.fillStyle='#8995ab';ctx.font='500 12px monospace';ctx.fillText('+'+Number(a.level||0)+'  ·  '+String(a.setName||'').slice(0,22),rx+110,y+94);
+  ctx.fillStyle=accent;ctx.font='700 11px monospace';ctx.fillText((String(a.slot||artifactNames[i]).toUpperCase()+'  ·  +'+Number(a.level||0)).slice(0,24),rx+110,y+20);
+  ctx.fillStyle='#f0f3fa';ctx.font='700 15px Arial,sans-serif';ctx.fillText(String(a.mainStat?.label||'Artifact').slice(0,22),rx+110,y+43);
+  ctx.fillStyle='#dce4f4';ctx.font='700 18px Arial,sans-serif';ctx.fillText(String(a.mainStat?.value||'—').slice(0,16),rx+110,y+65);
+  // All four substats are compactly arranged in two columns below the main stat.
+  const substats=Array.isArray(a.substats)?a.substats.slice(0,4):[];
+  ctx.font='500 11px Arial,sans-serif';
+  substats.forEach((sub,j)=>{
+    const col=j%2,row=Math.floor(j/2),sx=rx+110+col*140,sy=y+82+row*14;
+    const label=String(sub.label||'').replace('Energy Recharge','ER').replace('Elemental Mastery','EM').replace('CRIT Rate','CR').replace('CRIT DMG','CD').replace('ATK','ATK').replace('DEF','DEF').replace('HP','HP');
+    const text=label+' '+String(sub.value??'').slice(0,9);
+    ctx.fillStyle='#c8d2e4';ctx.fillText(text.slice(0,20),sx,sy);
+  });
  });
  ctx.fillStyle='#77849a';ctx.font='500 12px monospace';ctx.fillText('PUBLIC SHOWCASE SNAPSHOT  ·  STATPAGLU',600,713);
  ctx.textAlign='right';ctx.fillStyle=accent;ctx.fillText('BUILD CARD  /  '+String(c.name||'').toUpperCase(),1540,713);ctx.textAlign='left';
