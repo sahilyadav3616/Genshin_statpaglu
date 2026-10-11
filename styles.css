@@ -163,3 +163,15 @@ body.light-mode .advisor-chip-emphasis{color:#514a77!important;background:#f2eff
   .roster .build-card { animation-delay: 0ms; }
   .build-card::after { display: none; }
 }
+
+
+/* Element-aware card skins: keep the game's identity without overpowering build data. */
+.build-card[data-element="anemo"] { background: linear-gradient(150deg, rgba(20, 52, 46, .94), rgba(14, 18, 27, .98)); }
+.build-card[data-element="geo"] { background: linear-gradient(150deg, rgba(62, 48, 25, .94), rgba(14, 18, 27, .98)); }
+.build-card[data-element="electro"] { background: linear-gradient(150deg, rgba(46, 31, 68, .94), rgba(14, 18, 27, .98)); }
+.build-card[data-element="dendro"] { background: linear-gradient(150deg, rgba(37, 55, 27, .94), rgba(14, 18, 27, .98)); }
+.build-card[data-element="hydro"] { background: linear-gradient(150deg, rgba(22, 46, 70, .94), rgba(14, 18, 27, .98)); }
+.build-card[data-element="pyro"] { background: linear-gradient(150deg, rgba(67, 34, 29, .94), rgba(14, 18, 27, .98)); }
+.build-card[data-element="cryo"] { background: linear-gradient(150deg, rgba(31, 53, 64, .94), rgba(14, 18, 27, .98)); }
+.build-card[data-element] .card-glow { opacity: .28; }
+body.light-mode .build-card[data-element] { background: linear-gradient(150deg, rgba(255,255,255,.98), rgba(242,245,251,.98)); }
