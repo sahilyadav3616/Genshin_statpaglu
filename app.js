@@ -220,7 +220,10 @@ function renderRoster(filterText){
     if(c.image){imgEl.src=c.image;imgEl.style.display='block';el.querySelector('.portrait').style.display='none'}else{imgEl.style.display='none';el.querySelector('.portrait').style.display='grid'}
     if(c.weapon?.icon){el.querySelector('.weapon-img').src=c.weapon.icon;el.querySelector('.weapon-img').style.display='block';el.querySelector('.weapon-icon').style.display='none'}else{el.querySelector('.weapon-img').style.display='none';el.querySelector('.weapon-icon').style.display='inline'}
     const artRow=el.querySelector('.artifact-icons-row'); if(artRow)artRow.innerHTML=artifacts.map(a=>a.icon?`<img src="${escapeHTML(a.icon)}" class="mini-art-icon" alt="" />`:'').join('');
-    el.addEventListener('click',()=>openDetail(i)); roster.appendChild(el);
+    el.addEventListener('click',()=>openDetail(i));
+    const downloadButton=el.querySelector('.card-download');
+    downloadButton?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();downloadBuildCard(i);});
+    roster.appendChild(el);
   });
 }
 async function load(uid){
