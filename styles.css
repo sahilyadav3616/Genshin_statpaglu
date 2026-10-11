@@ -293,3 +293,12 @@ body.ambient-off .ost-player, body.ambient-off .topbar { animation:none; }
 #detailModal #shareBuildCard:hover { background:color-mix(in srgb,var(--character-accent,var(--accent)) 10%,transparent); }
 #detailModal .detail-action-note { flex-basis:100%; }
 @media(max-width:620px){#detailModal .build-download-button,#detailModal #shareBuildCard{width:100%;}}
+
+/* Download directly from the visible front-of-card showcase. */
+.build-card .card-actions { position:relative; z-index:4; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
+.build-card .card-actions .card-view-detail { margin:0; flex:1; }
+.build-card .card-download { flex:0 0 auto; min-height:38px; padding:0 14px; border:1px solid color-mix(in srgb,var(--accent) 65%,transparent); border-radius:11px; background:color-mix(in srgb,var(--accent) 13%,transparent); color:var(--accent); font:800 10px 'DM Mono',monospace; letter-spacing:.8px; cursor:pointer; box-shadow:0 5px 18px color-mix(in srgb,var(--accent) 10%,transparent); transition:transform .18s ease,background .18s ease,border-color .18s ease; }
+.build-card .card-download:hover { transform:translateY(-2px); background:color-mix(in srgb,var(--accent) 23%,transparent); border-color:var(--accent); }
+.build-card .card-download:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media(max-width:520px) { .build-card .card-download { min-height:40px; padding:0 12px; } }
+@media(prefers-reduced-motion:reduce) { .build-card .card-download { transition:none; } }
