@@ -132,7 +132,6 @@ body.light-mode .advisor-chip-emphasis{color:#514a77!important;background:#f2eff
   transition: opacity 220ms ease;
 }
 .build-card:hover::after, .build-card:focus-visible::after { opacity: 1; }
-.build-card > * { position: relative; }
 .build-card .char-image { transition: opacity 300ms ease, transform 500ms cubic-bezier(.2,.75,.25,1); }
 .build-card:hover .char-image { transform: scale(1.045); }
 .build-card .stat b { display: inline-block; font-variant-numeric: tabular-nums; }
