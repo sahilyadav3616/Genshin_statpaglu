@@ -42,7 +42,7 @@ const enka = new EnkaNetwork({
 // The wrapper refreshes its character/localization assets asynchronously.
 // Wait for that refresh before resolving IDs so newly released characters
 // (for example avatarId 10000140 / Vodyanitsa) are not treated as unknown.
-const assetsReady = enka.assetsUpdater
+const assetsReady = require.main === module && enka.assetsUpdater
   ? enka.assetsUpdater.fetchAssets(true).catch((error) => {
       console.warn('[StatPaglu] Enka asset refresh failed:', error?.message || error);
     })
@@ -643,6 +643,10 @@ function resolveAsset(filename) {
   catch (_) { return `https://enka.network/ui/${String(filename).replace(/\.png$/,'')}.png`; }
 }
 
+function characterElementFromAsset(character) {
+  return character?.elementType ?? character?.element ?? character?.vision ?? null;
+}
+
 function resolveCharacterMeta(raw) {
   const id = Number(raw?.avatarId || 0);
   if (!id) return {};
@@ -652,7 +656,7 @@ function resolveCharacterMeta(raw) {
     return {
       id: character.id,
       name: enka.assets.characters.getName(character, 'EN'),
-      element: character.elementType ?? character.element ?? character.vision ?? null,
+      element: characterElementFromAsset(character),
       level: Number(raw?.propMap?.['4001']?.ival ?? raw?.propMap?.['4001']?.val ?? 1),
       icons: {
         avatar: resolveAsset(character.iconName),
@@ -723,31 +727,37 @@ async function buildProfile(uid) {
     characters
   };
 }
-http.createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://localhost');
-  const match = url.pathname.match(/^\/api\/profile\/(\d{8,10})$/);
-
-  if (match) {
-    const uid = match[1];
-    const previous = cache.get(uid);
-    if (previous && Date.now() - previous.at < TTL_MS) return send(res, 200, JSON.stringify(previous.data));
-    try {
-      const data = await buildProfile(uid);
-      cache.set(uid, { data, at: Date.now() });
-      return send(res, 200, JSON.stringify(data));
-    } catch (err) {
-      return send(res, err.status || 502, JSON.stringify({ error: err.message || 'Could not reach Enka.network' }));
+if (require.main === module) {
+  http.createServer(async (req, res) => {
+    const url = new URL(req.url, 'http://localhost');
+    const match = url.pathname.match(/^\/api\/profile\/(\d{8,10})$/);
+  
+    if (match) {
+      const uid = match[1];
+      const previous = cache.get(uid);
+      if (previous && Date.now() - previous.at < TTL_MS) return send(res, 200, JSON.stringify(previous.data));
+      try {
+        const data = await buildProfile(uid);
+        cache.set(uid, { data, at: Date.now() });
+        return send(res, 200, JSON.stringify(data));
+      } catch (err) {
+        return send(res, err.status || 502, JSON.stringify({ error: err.message || 'Could not reach Enka.network' }));
+      }
     }
-  }
+  
+    const file = files.get(url.pathname);
+    if (!file) return send(res, 404, 'Not found', 'text/plain');
+    const ext = path.extname(file);
+    fs.readFile(path.join(root, file), (err, data) => {
+      if (err) return send(res, 500, 'Could not read app file', 'text/plain');
+      send(res, 200, data, types[ext]);
+    });
+  }).listen(Number(process.env.PORT || 4173), () => console.log(`Genshin StatPaglu v9.2.0 is running on port ${process.env.PORT || 4173}`));
+  
+  
+}
 
-  const file = files.get(url.pathname);
-  if (!file) return send(res, 404, 'Not found', 'text/plain');
-  const ext = path.extname(file);
-  fs.readFile(path.join(root, file), (err, data) => {
-    if (err) return send(res, 500, 'Could not read app file', 'text/plain');
-    send(res, 200, data, types[ext]);
-  });
-}).listen(Number(process.env.PORT || 4173), () => console.log(`Genshin StatPaglu v9.2.0 is running on port ${process.env.PORT || 4173}`));
-
-// Export parser helpers for the local smoke-test without starting another server.
-module.exports = { getFinalStats, serializeCharacter, normalizeRawWeapon, normalizeRawArtifact };
+module.exports = {
+  getFinalStats, serializeCharacter, normalizeRawWeapon, normalizeRawArtifact,
+  talentRows, characterImageFromMetadata, characterElementFromAsset
+};
