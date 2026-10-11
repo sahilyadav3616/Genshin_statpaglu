@@ -3,7 +3,7 @@ services:
     name: genshin-statpaglu-node
     runtime: node
     rootDir: .
-    buildCommand: npm install
+    buildCommand: npm install && npm test
     startCommand: npm start
     plan: free
     autoDeployTrigger: commit
