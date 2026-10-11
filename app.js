@@ -102,24 +102,49 @@ function openDetail(index){
 }
 function closeDetail(){const modal=document.querySelector('#detailModal');modal.classList.add('hidden');modal.dataset.characterIndex='';}
 function buildCardColor(element){return ({anemo:'#72d7b3',geo:'#e6b95e',electro:'#b49aff',dendro:'#a4d86c',hydro:'#65c8f2',pyro:'#ff8b72',cryo:'#a2e5f2'})[element]||'#a99aff';}
-function downloadBuildCard(index){
- const c=currentCharacters[index];if(!c)return;
+function createBuildCard(index){
+ const c=currentCharacters[index];if(!c)return null;
  const element=characterElement(c),accent=buildCardColor(element),canvas=document.createElement('canvas');canvas.width=1200;canvas.height=680;
- const ctx=canvas.getContext('2d');if(!ctx)return;
- const bg=ctx.createLinearGradient(0,0,1200,630);bg.addColorStop(0,'#080d18');bg.addColorStop(.58,'#151c2c');bg.addColorStop(1,'#101b22');ctx.fillStyle=bg;ctx.fillRect(0,0,1200,630);
- ctx.globalAlpha=.18;ctx.fillStyle=accent;ctx.beginPath();ctx.arc(1090,80,290,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=accent;ctx.globalAlpha=.65;ctx.lineWidth=2;ctx.strokeRect(28,28,1144,624);ctx.globalAlpha=1;
- ctx.fillStyle=accent;ctx.font='600 20px monospace';ctx.fillText('GENSHIN STATPAGLU  /  CHARACTER BUILD',64,76);
- ctx.fillStyle='#f5f7ff';ctx.font='800 58px Arial, sans-serif';ctx.fillText(String(c.name||'Unknown Character').slice(0,24),64,153);
- ctx.fillStyle='#aeb8ca';ctx.font='500 22px Arial, sans-serif';ctx.fillText((element?element.toUpperCase()+' ELEMENT  ·  ':'')+'LEVEL '+Number(c.level||1)+'  ·  C'+Number(c.constellation||0),66,195);
- ctx.fillStyle=accent;ctx.fillRect(64,222,1072,2);
+ const ctx=canvas.getContext('2d');if(!ctx)return null;
+ const bg=ctx.createLinearGradient(0,0,1200,680);bg.addColorStop(0,'#080d18');bg.addColorStop(.55,'#151c2c');bg.addColorStop(1,'#101b22');ctx.fillStyle=bg;ctx.fillRect(0,0,1200,680);
+ // Layered elemental glow, geometric emblem and fine frame.
+ const glow=ctx.createRadialGradient(1010,120,10,1010,120,410);glow.addColorStop(0,accent+'55');glow.addColorStop(1,accent+'00');ctx.fillStyle=glow;ctx.fillRect(560,0,640,500);
+ ctx.save();ctx.translate(1030,126);ctx.rotate(Math.PI/4);ctx.strokeStyle=accent;ctx.globalAlpha=.2;ctx.lineWidth=3;ctx.strokeRect(-155,-155,310,310);ctx.strokeRect(-120,-120,240,240);ctx.restore();ctx.globalAlpha=1;
+ ctx.strokeStyle=accent;ctx.globalAlpha=.65;ctx.lineWidth=2;ctx.strokeRect(28,28,1144,624);ctx.globalAlpha=1;
+ ctx.fillStyle=accent;ctx.fillRect(52,53,5,54);ctx.font='600 19px monospace';ctx.fillText('GENSHIN STATPAGLU',72,70);ctx.fillStyle='#8995ab';ctx.font='500 13px monospace';ctx.fillText('/ CHARACTER BUILD CARD',72,94);
+ ctx.fillStyle='#f5f7ff';ctx.font='800 62px Arial, sans-serif';ctx.fillText(String(c.name||'Unknown Character').slice(0,22),64,174);
+ ctx.fillStyle=accent;ctx.font='700 18px Arial, sans-serif';ctx.fillText((element?element.toUpperCase()+' ELEMENT':'CHARACTER BUILD'),68,211);
+ ctx.fillStyle='#aeb8ca';ctx.font='500 19px Arial, sans-serif';ctx.fillText('LEVEL '+Number(c.level||1)+'    ·    CONSTELLATION C'+Number(c.constellation||0),68,243);
+ ctx.fillStyle=accent;ctx.globalAlpha=.8;ctx.fillRect(64,265,1072,2);ctx.globalAlpha=1;
  const stats=(c.stats||[]).filter(s=>['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'].includes(s.label));
- stats.slice(0,7).forEach((s,i)=>{const col=i%2,row=Math.floor(i/2),x=70+col*540,y=260+row*70;ctx.fillStyle='rgba(255,255,255,.055)';ctx.fillRect(x,y,500,54);ctx.fillStyle='#9da9bd';ctx.font='500 17px Arial, sans-serif';ctx.fillText(String(s.label||'STAT').toUpperCase(),x+16,y+21);ctx.fillStyle='#f5f7ff';ctx.font='700 23px Arial, sans-serif';ctx.fillText(String(s.value||'—').slice(0,22),x+16,y+45);});
- const weapon=c.weapon?String(c.weapon.name||'Unknown weapon')+'  ·  '+Number(c.weapon.rarity||0)+'★  ·  R'+Number(c.weapon.refinement||1):'Weapon data unavailable';ctx.fillStyle='#dce4f4';ctx.font='600 18px Arial, sans-serif';ctx.fillText('WEAPON  '+weapon.slice(0,55),70,555);
- const sets={};(c.artifacts||[]).forEach(a=>{if(a.setName&&a.setName!=='Unknown Set')sets[a.setName]=(sets[a.setName]||0)+1;});const setLine=Object.entries(sets).map(([name,count])=>name+' ×'+count).join('  ·  ')||'Artifact set data unavailable';ctx.fillStyle='#9da9bd';ctx.font='500 16px Arial, sans-serif';ctx.fillText(('ARTIFACTS  '+setLine).slice(0,100),70,585);
- ctx.fillStyle='#8390a5';ctx.font='500 14px monospace';ctx.fillText('PUBLIC SHOWCASE SNAPSHOT  ·  GENSHIN STATPAGLU',70,616);
- const filename='statpaglu-'+String(c.name||'build').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png';
- const save=blob=>{if(!blob){const link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');link.click();return;}const file=new File([blob],filename,{type:'image/png'});if(navigator.share&&navigator.canShare?.({files:[file]})){navigator.share({files:[file],title:c.name+' build',text:'Build card created with Genshin StatPaglu.'}).catch(err=>{if(err?.name!=='AbortError')downloadBlob(blob,filename);});}else downloadBlob(blob,filename);};
- canvas.toBlob(save,'image/png');
+ stats.slice(0,7).forEach((s,i)=>{
+   const col=i%2,row=Math.floor(i/2),x=66+col*540,y=286+row*68,w=510,h=56;
+   ctx.fillStyle='rgba(255,255,255,.055)';ctx.fillRect(x,y,w,h);ctx.fillStyle=accent;ctx.globalAlpha=.85;ctx.fillRect(x,y,3,h);ctx.globalAlpha=1;
+   ctx.fillStyle='#9da9bd';ctx.font='600 14px Arial, sans-serif';ctx.fillText(String(s.label||'STAT').toUpperCase(),x+16,y+21);
+   ctx.fillStyle='#f5f7ff';ctx.font='700 24px Arial, sans-serif';ctx.fillText(String(s.value||'—').slice(0,22),x+16,y+46);
+ });
+ const weapon=c.weapon?String(c.weapon.name||'Unknown weapon')+'  ·  '+Number(c.weapon.rarity||0)+'★  ·  R'+Number(c.weapon.refinement||1):'Weapon data unavailable';
+ ctx.fillStyle=accent;ctx.font='700 13px monospace';ctx.fillText('WEAPON',68,535);ctx.fillStyle='#e6ebf5';ctx.font='600 17px Arial, sans-serif';ctx.fillText(weapon.slice(0,62),155,535);
+ const sets={};(c.artifacts||[]).forEach(a=>{if(a.setName&&a.setName!=='Unknown Set')sets[a.setName]=(sets[a.setName]||0)+1;});
+ const setLine=Object.entries(sets).map(([name,count])=>name+' ×'+count).join('  ·  ')||'Artifact set data unavailable';
+ ctx.fillStyle=accent;ctx.font='700 13px monospace';ctx.fillText('ARTIFACTS',68,568);ctx.fillStyle='#b8c2d3';ctx.font='500 15px Arial, sans-serif';ctx.fillText(setLine.slice(0,90),155,568);
+ ctx.fillStyle='#77849a';ctx.font='500 12px monospace';ctx.fillText('PUBLIC SHOWCASE SNAPSHOT  ·  STATPAGLU',68,615);
+ return {canvas,character:c,filename:'statpaglu-'+String(c.name||'build').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png'};
+}
+function downloadBuildCard(index){
+ const card=createBuildCard(index);if(!card)return;
+ card.canvas.toBlob(blob=>{if(blob)downloadBlob(blob,card.filename);else{const link=document.createElement('a');link.download=card.filename;link.href=card.canvas.toDataURL('image/png');link.click();}},'image/png');
+}
+function shareBuildCard(index){
+ const card=createBuildCard(index);if(!card)return;
+ card.canvas.toBlob(async blob=>{
+   if(!blob){downloadBuildCard(index);return;}
+   const file=new File([blob],card.filename,{type:'image/png'});
+   if(navigator.share&&navigator.canShare?.({files:[file]})){
+     try{await navigator.share({files:[file],title:card.character.name+' build',text:'Build card created with Genshin StatPaglu.'});}
+     catch(err){if(err?.name!=='AbortError')downloadBlob(blob,card.filename);}
+   }else downloadBlob(blob,card.filename);
+ },'image/png');
 }
 function downloadBlob(blob,filename){const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 const compareMetricLabels = ['HP','ATK','DEF','Elemental Mastery','CRIT Rate','CRIT DMG','Energy Recharge'];
@@ -212,7 +237,8 @@ document.querySelector('#compareButton')?.addEventListener('click',renderCompari
 document.querySelector('#compareA')?.addEventListener('change',renderComparison);
 document.querySelector('#compareB')?.addEventListener('change',renderComparison);
 document.querySelector('#detailModal').addEventListener('click',e=>{if(e.target.id==='detailModal'||e.target.closest('.detail-close'))closeDetail()});
-document.querySelector('#shareBuildCard')?.addEventListener('click',()=>downloadBuildCard(Number(document.querySelector('#detailModal')?.dataset.characterIndex)));
+document.querySelector('#downloadBuildCard')?.addEventListener('click',()=>downloadBuildCard(Number(document.querySelector('#detailModal')?.dataset.characterIndex)));
+document.querySelector('#shareBuildCard')?.addEventListener('click',()=>shareBuildCard(Number(document.querySelector('#detailModal')?.dataset.characterIndex)));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail()});
 // Do not load a profile automatically; the UID field starts empty.
 /* Teyvat Radio — public YouTube embeds, no account required. */
