@@ -113,3 +113,53 @@ body.light-mode .advisor-summary{color:#4f596d}
 body.light-mode .advisor-label{color:#667087}
 body.light-mode .advisor-row span,body.light-mode .advisor-subline,body.light-mode .advisor-talent,body.light-mode .advisor-findings p{color:#5f697d}
 body.light-mode .advisor-chip-emphasis{color:#514a77!important;background:#f2efff!important}
+
+
+/* StatPaglu polish pass — lightweight, CSS-first micro-interactions */
+:root { --motion-fast: 180ms; --motion-medium: 320ms; }
+.build-card {
+  transform-style: preserve-3d;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+.build-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(380px circle at var(--pointer-x, 50%) var(--pointer-y, 35%), color-mix(in srgb, var(--accent, #a99aff) 16%, transparent), transparent 58%);
+  transition: opacity 220ms ease;
+}
+.build-card:hover::after, .build-card:focus-visible::after { opacity: 1; }
+.build-card .char-image { transition: opacity 300ms ease, transform 500ms cubic-bezier(.2,.75,.25,1); }
+.build-card:hover .char-image { transform: scale(1.045); }
+.build-card .stat b { display: inline-block; font-variant-numeric: tabular-nums; }
+.build-card .card-view-detail { transition: transform 180ms ease, background 180ms ease, letter-spacing 180ms ease; }
+.build-card:hover .card-view-detail { transform: translateX(2px); letter-spacing: .9px; }
+.uid-form button, .ghost-button, .theme-toggle, .ost-controls button {
+  transition: transform 180ms ease, border-color 180ms ease, filter 180ms ease, background 180ms ease;
+}
+.uid-form button:active, .ghost-button:active, .theme-toggle:active, .ost-controls button:active { transform: scale(.97); }
+.roster .build-card { animation: statpaglu-card-in 420ms both; animation-delay: calc(var(--card-order, 0) * 45ms); }
+@keyframes statpaglu-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.profile-panel, .section-heading, .filter-input, .ost-player {
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+.uid-form button[aria-busy="true"] { cursor: progress; filter: saturate(.7); }
+.uid-form button[aria-busy="true"] span { animation: statpaglu-pulse 850ms ease-in-out infinite alternate; }
+@keyframes statpaglu-pulse { to { opacity: .45; transform: translateX(3px); } }
+@media (hover: hover) and (pointer: fine) {
+  .build-card[data-tilt="on"]:hover { box-shadow: 0 22px 55px rgba(0,0,0,.28); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .build-card, .build-card:hover, .build-card .char-image, .build-card:hover .char-image { transform: none !important; }
+}
+@media (max-width: 620px) {
+  .roster .build-card { animation-delay: 0ms; }
+  .build-card::after { display: none; }
+}
