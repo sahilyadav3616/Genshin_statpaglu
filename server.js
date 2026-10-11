@@ -609,6 +609,7 @@ function serializeCharacter(raw, meta) {
   return {
     id,
     name: getStr(meta?.name || meta?.characterData?.name || `Character ${id}`),
+    element: meta?.element ?? meta?.elementType ?? meta?.vision?.element ?? meta?.vision ?? null,
     level: Number(raw?.propMap?.['4001']?.ival ?? raw?.propMap?.['4001']?.val ?? meta?.level ?? 1),
     image: characterImageFromMetadata(meta),
     constellation: constellationCount(raw),
