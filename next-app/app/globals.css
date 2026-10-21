@@ -171,3 +171,54 @@ body.light-mode .build-card,body.light-mode .profile-panel,body.light-mode .supp
 }
 @media (prefers-reduced-motion:reduce){.build-card,.profile-panel,.support-panel,.compare-panel,.key-stats,.detail-stat,.artifact-detail-card,.theme-toggle,.ambience-toggle,.ghost-button,.upi-button,.build-download-button{transition:none!important}.build-card:hover,.artifact-detail-card:hover,.theme-toggle:hover,.ambience-toggle:hover,.ghost-button:hover,.upi-button:hover,.build-download-button:hover{transform:none}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.theme-toggle,.ambience-toggle,.ghost-button,.upi-button,.build-download-button{background:rgba(20,29,48,.94)}.build-card,.profile-panel,.support-panel,.compare-panel,.key-stats,.detail-stat,.artifact-detail-card{background:rgba(18,25,42,.96)}}
+
+/* Refresh-rate-friendly scrolling: let the browser present frames at the display's native refresh rate. */
+.build-card,.profile-panel,.support-panel,.compare-panel,.key-stats,.detail-stat,.artifact-detail-card {
+  content-visibility:auto;
+  contain-intrinsic-size:auto 280px;
+}
+body.is-scrolling .theme-toggle,
+body.is-scrolling .ambience-toggle,
+body.is-scrolling .ghost-button,
+body.is-scrolling .upi-button,
+body.is-scrolling .build-download-button,
+body.is-scrolling .build-card,
+body.is-scrolling .profile-panel,
+body.is-scrolling .support-panel,
+body.is-scrolling .compare-panel,
+body.is-scrolling .key-stats,
+body.is-scrolling .detail-stat,
+body.is-scrolling .artifact-detail-card,
+body.is-scrolling .ost-player,
+body.is-scrolling .modal,
+body.is-scrolling .modal-content {
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  transition:none !important;
+}
+body.is-scrolling .build-card,
+body.is-scrolling .profile-panel,
+body.is-scrolling .support-panel,
+body.is-scrolling .compare-panel,
+body.is-scrolling .key-stats,
+body.is-scrolling .detail-stat,
+body.is-scrolling .artifact-detail-card {
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 14px rgba(0,0,0,.08);
+}
+body.is-scrolling .frost-snowflake,
+body.is-scrolling .ambient,
+body.is-scrolling .topbar,
+body.is-scrolling .hero > .eyebrow,
+body.is-scrolling .hero h1,
+body.is-scrolling .hero > p,
+body.is-scrolling .uid-form,
+body.is-scrolling .hint,
+body.is-scrolling .ost-player {
+  animation-play-state:paused !important;
+}
+@media (prefers-reduced-motion:reduce) {
+  .build-card,.profile-panel,.support-panel,.compare-panel,.key-stats,.detail-stat,.artifact-detail-card {
+    content-visibility:visible;
+    contain-intrinsic-size:auto;
+  }
+}
