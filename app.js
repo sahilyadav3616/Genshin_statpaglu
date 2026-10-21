@@ -348,3 +348,15 @@ window.addEventListener('load',()=>{
   const uidInput=document.querySelector('#uidInput');
   if(uidInput){uidInput.value=''; uidInput.focus();}
 });
+
+/* Keep scroll work passive and pause costly visual effects only while the user is moving. */
+(function initScrollPerformance(){
+  let idleTimer;
+  const onScroll=()=>{
+    document.body.classList.add('is-scrolling');
+    clearTimeout(idleTimer);
+    idleTimer=setTimeout(()=>document.body.classList.remove('is-scrolling'),140);
+  };
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('pagehide',()=>clearTimeout(idleTimer),{once:true});
+})();
