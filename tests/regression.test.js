@@ -32,7 +32,7 @@ test('UPI support flow keeps manual payment fallback and recipient verification 
  assert.match(html,/upi:\/\/pay\?pa=sahilyadav3616\.1%40oksbi/);
  assert.match(html,/data-copy-upi/);
  assert.match(html,/role="status" aria-live="polite"/);
- assert.match(html,/verify the recipient name and amount/);
+ assert.match(html,/Check the recipient name and amount/);
  assert.match(app,/document\.execCommand\('copy'\)/);
  assert.match(app,/UPI ID copied/);
 });
