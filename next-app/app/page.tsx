@@ -313,19 +313,38 @@ function DetailModal({ character: c, onClose }: { character: Character; onClose:
 }
 function SupportPanel() {
   const upiId = 'sahilyadav3616.1@oksbi';
+  const [status, setStatus] = useState('On mobile, open a UPI app from the payment link. If no app opens, copy the UPI ID and pay manually.');
   const copyUpi = async () => {
-    try { await navigator.clipboard.writeText(upiId); alert('UPI ID copied. Open your payment app and paste it.'); }
-    catch { alert('Copy failed. UPI ID: ' + upiId); }
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(upiId);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = upiId;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand('copy');
+        textarea.remove();
+        if (!copied) throw new Error('Clipboard unavailable');
+      }
+      setStatus('UPI ID copied. Open your preferred UPI app, paste the ID, and verify the recipient before paying.');
+    } catch {
+      setStatus('Automatic copy was blocked. Select and copy the UPI ID shown above: ' + upiId);
+    }
   };
   return <section className="support-panel">
     <span className="eyebrow">SUPPORT THE PROJECT</span>
     <p>If StatPaglu helped you, you can support development.</p>
     <div className="upi-id">UPI: <b>{upiId}</b></div>
     <div className="upi-actions">
-      <a className="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR">♡ OPEN UPI APP</a>
+      <a className="upi-button" href="upi://pay?pa=sahilyadav3616.1%40oksbi&pn=Genshin%20StatPaglu&cu=INR&tn=Support%20Genshin%20StatPaglu" onClick={() => setStatus('Your device is opening a compatible UPI app. If nothing opens, copy the UPI ID and pay manually.')}>♡ OPEN UPI APP</a>
       <button className="upi-copy" type="button" onClick={copyUpi}>COPY UPI ID</button>
     </div>
-    <small className="upi-fallback">If the UPI app does not open, copy the UPI ID and pay from your preferred app.</small>
+    <small className="upi-fallback" role="status" aria-live="polite">{status}</small>
+    <p className="upi-note">StatPaglu does not process or verify payments. Check the recipient name and amount in your UPI app before authorising.</p>
   </section>;
 }
 function Breakdown({label,value,note,wide=false}:{label:string;value:string;note:string;wide?:boolean}) {

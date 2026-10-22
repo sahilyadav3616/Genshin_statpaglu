@@ -15,20 +15,43 @@ function characterElement(character) {
   return Object.keys(aliases).find(element => aliases[element].some(alias => key === alias || key.includes(alias))) || '';
 }
 const UPI_ID = 'sahilyadav3616.1@oksbi';
+async function copyTextFallback(value){
+  if(navigator.clipboard && window.isSecureContext){
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+  const textarea=document.createElement('textarea');
+  textarea.value=value;
+  textarea.setAttribute('readonly','');
+  textarea.style.position='fixed';
+  textarea.style.opacity='0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied=document.execCommand('copy');
+  textarea.remove();
+  if(!copied) throw new Error('Clipboard unavailable');
+}
 function initUpiSupport(){
   const copyButton=document.querySelector('[data-copy-upi]');
   const status=document.querySelector('#upiFallback');
-  if(!copyButton) return;
-  copyButton.addEventListener('click',async()=>{
-    try{
-      await navigator.clipboard.writeText(UPI_ID);
-      copyButton.textContent='COPIED ✓';
-      if(status) status.textContent='UPI ID copied. Open your payment app and paste it.';
-      setTimeout(()=>{copyButton.textContent='COPY UPI ID'; if(status) status.textContent='If the UPI app does not open, copy the UPI ID and pay from your preferred app.'},2200);
-    }catch{
-      if(status) status.textContent='Copy failed. Use this UPI ID manually: '+UPI_ID;
-    }
-  });
+  const paymentLink=document.querySelector('[data-upi-link]');
+  if(copyButton){
+    copyButton.addEventListener('click',async()=>{
+      try{
+        await copyTextFallback(UPI_ID);
+        copyButton.textContent='COPIED ✓';
+        if(status) status.textContent='UPI ID copied. Open your preferred UPI app, paste the ID, and verify the recipient before paying.';
+        window.setTimeout(()=>{copyButton.textContent='COPY UPI ID';},2200);
+      }catch{
+        if(status) status.textContent='Automatic copy was blocked. Select and copy the UPI ID shown above: '+UPI_ID;
+      }
+    });
+  }
+  if(paymentLink){
+    paymentLink.addEventListener('click',()=>{
+      if(status) status.textContent='Your device is opening a compatible UPI app. If nothing opens, copy the UPI ID and pay manually.';
+    });
+  }
 }
 
 const priorityLabels = ['CRIT Rate','CRIT DMG','ATK','Elemental Mastery','Energy Recharge','HP','DEF'];
