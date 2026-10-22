@@ -24,3 +24,15 @@ test('character artwork resolver handles string and URL metadata safely',()=>{
  assert.equal(characterImageFromMetadata({characterData:{icons:{gacha:{url:'https://example.test/splash.png'}}}}),'https://example.test/splash.png');
  assert.equal(characterImageFromMetadata({}),null);
 });
+
+test('UPI support flow keeps manual payment fallback and recipient verification guidance',()=>{
+ const fs=require('node:fs');
+ const html=fs.readFileSync(require('node:path').join(__dirname,'..','index.html'),'utf8');
+ const app=fs.readFileSync(require('node:path').join(__dirname,'..','app.js'),'utf8');
+ assert.match(html,/upi:\/\/pay\?pa=sahilyadav3616\.1%40oksbi/);
+ assert.match(html,/data-copy-upi/);
+ assert.match(html,/role="status" aria-live="polite"/);
+ assert.match(html,/verify the recipient name and amount/);
+ assert.match(app,/document\.execCommand\('copy'\)/);
+ assert.match(app,/UPI ID copied/);
+});
