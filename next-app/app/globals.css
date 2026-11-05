@@ -247,3 +247,6 @@ body.is-scrolling .build-card,body.is-scrolling .profile-panel,body.is-scrolling
 /* Next.js ambient layer names used by its page component. */
 .ambient{position:fixed;width:620px;height:620px;border-radius:50%;filter:blur(92px);opacity:.23;pointer-events:none;z-index:0}.ambient-a{background:#7565e8;top:-340px;left:-280px}.ambient-b{background:#20d5ae;right:-300px;top:330px}
 body.light-mode .ambient{opacity:.12}
+
+/* Keep the Next.js app content above the decorative fixed glass backdrop. */
+.page-shell{position:relative;z-index:1}
