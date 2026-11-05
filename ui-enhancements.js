@@ -35,6 +35,26 @@
     });
   }
 
+
+  function trackGlassPointer() {
+    if (!finePointer || reduceMotion) return;
+    const selector = '.build-card,.profile-panel,.support-panel,.compare-panel,.key-stats,.detail-stat,.artifact-detail-card,.modal-content,.ost-player,.seo-intro,.voice-line,.advisor-section';
+    let frame = 0, latest = null;
+    document.addEventListener('pointermove', (event) => {
+      latest = event;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const target = latest && latest.target && latest.target.closest ? latest.target.closest(selector) : null;
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        target.style.setProperty('--glass-x', ((latest.clientX - rect.left) / rect.width * 100).toFixed(1) + '%');
+        target.style.setProperty('--glass-y', ((latest.clientY - rect.top) / rect.height * 100).toFixed(1) + '%');
+      });
+    }, { passive: true });
+  }
+
   function addLoadingFeedback() {
     const form = document.querySelector('#uidForm');
     const button = form?.querySelector('button[type="submit"]');
@@ -63,9 +83,10 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { observeRoster(); addLoadingFeedback(); });
+    document.addEventListener('DOMContentLoaded', () => { observeRoster(); addLoadingFeedback(); trackGlassPointer(); });
   } else {
     observeRoster();
     addLoadingFeedback();
+    trackGlassPointer();
   }
 })();
