@@ -1,4 +1,4 @@
-// Genshin StatPaglu v9.2.0
+﻿// Genshin StatPaglu v9.2.0
 // Character combat stats come from the RAW Enka API response.
 // The enkanetwork wrapper is used only for friendly metadata/assets when available.
 const http = require('http');
@@ -12,6 +12,8 @@ const files = new Map([
   ['/index.html', 'index.html'],
   ['/styles.css', 'styles.css'],
   ['/app.js', 'app.js'],
+  ['/ui-enhancements.js', 'ui-enhancements.js'],
+  ['/quote.js', 'quote.js'],
   ['/profile-cache.js', 'profile-cache.js'],
   ['/ayaka-snowflake.png', 'ayaka-snowflake.png'],
   ['/ayaka-snowflake.svg', 'ayaka-snowflake.svg'],
@@ -31,6 +33,15 @@ const types = {
 
 function send(res, status, body, type = 'application/json; charset=utf-8') {
   res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' });
+  res.end(body);
+}
+
+function sendStatic(res, status, body, type = 'text/plain') {
+  const isCacheable = type.includes('css') || type.includes('javascript') || type.includes('image') || type.includes('svg');
+  const cacheControl = isCacheable
+    ? 'public, max-age=86400, stale-while-revalidate=3600'
+    : 'public, max-age=300, must-revalidate';
+  res.writeHead(status, { 'Content-Type': type, 'Cache-Control': cacheControl });
   res.end(body);
 }
 
@@ -728,6 +739,16 @@ async function buildProfile(uid) {
   };
 }
 if (require.main === module) {
+  // Prune expired profile cache entries every 5 minutes to keep memory minimal on Render free tier
+  setInterval(() => {
+    const now = Date.now();
+    for (const [uid, item] of cache.entries()) {
+      if (now - item.at > TTL_MS * 5) {
+        cache.delete(uid);
+      }
+    }
+  }, 5 * 60 * 1000).unref();
+
   http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
     const match = url.pathname.match(/^\/api\/profile\/(\d{8,10})$/);
@@ -750,11 +771,9 @@ if (require.main === module) {
     const ext = path.extname(file);
     fs.readFile(path.join(root, file), (err, data) => {
       if (err) return send(res, 500, 'Could not read app file', 'text/plain');
-      send(res, 200, data, types[ext]);
+      sendStatic(res, 200, data, types[ext] || 'application/octet-stream');
     });
   }).listen(Number(process.env.PORT || 4173), () => console.log(`Genshin StatPaglu v9.2.0 is running on port ${process.env.PORT || 4173}`));
-  
-  
 }
 
 module.exports = {
